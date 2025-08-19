@@ -22,14 +22,7 @@ function Hero() {
         <Typography variant="h5" sx={{ mb: 4, opacity: 0.85 }}>
           Learn, Protect, and Respond with Confidence.
         </Typography>
-        <Button
-          variant="contained"
-          color="secondary"
-          size="large"
-          sx={{ fontWeight: 700, px: 4, borderRadius: 3 }}
-        >
-          Get Started
-        </Button>
+       
       </Box>
     </Fade>
   );
