@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 
 function ThreatMap() {
   return (
-    <Box sx={{ px: { xs: 2, md: 8 }, py: 6 }}>
+    <Box id="threatmap" sx={{ px: { xs: 2, md: 8 }, py: 6 }}>
       <Typography variant="h4" sx={{ fontWeight: 700, mb: 3, color: "secondary.main" }}>
         Live Threat Map
       </Typography>

@@ -12,11 +12,8 @@ function NewsSection() {
 
   useEffect(() => {
     const serpApiKey = process.env.REACT_APP_SERPAPI_KEY;
-
-    // 👇 proxy for localhost (only for dev!)
-  const proxy = "https://cors-anywhere.herokuapp.com/";
-
-    const serpApiUrl = `${proxy}https://serpapi.com/search.json?engine=google&q=cyber+crimes&gl=in&hl=en&tbm=nws&api_key`;
+    const proxy = "https://cors-anywhere.herokuapp.com/";
+    const serpApiUrl = `${proxy}https://serpapi.com/search.json?engine=google&q=cyber+crimes&gl=in&hl=en&tbm=nws&api_key=${serpApiKey}`;
 
     fetch(serpApiUrl)
       .then((res) => res.json())
@@ -33,10 +30,7 @@ function NewsSection() {
 
   return (
     <Box id="news" sx={{ px: { xs: 2, md: 8 }, py: 6 }}>
-      <Typography
-        variant="h4"
-        sx={{ fontWeight: 700, mb: 3, color: "primary.main" }}
-      >
+      <Typography variant="h4" sx={{ fontWeight: 700, mb: 3, color: "primary.main" }}>
         Latest Cybersecurity News
       </Typography>
       {loading ? (
@@ -45,18 +39,12 @@ function NewsSection() {
         <Grid container spacing={2}>
           {news.map((article, idx) => (
             <Grid item xs={12} sm={6} md={4} key={idx}>
-              <Card
-                sx={{ height: "100%", bgcolor: "background.paper", borderRadius: 3 }}
-              >
+              <Card sx={{ height: "100%", bgcolor: "background.paper", borderRadius: 3 }}>
                 <CardContent>
                   <Typography variant="h6" sx={{ fontWeight: 700 }}>
                     {article.title}
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 1 }}
-                  >
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                     {article.snippet}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
@@ -64,11 +52,7 @@ function NewsSection() {
                   </Typography>
                   {article.thumbnail && (
                     <Box sx={{ mt: 2 }}>
-                      <img
-                        src={article.thumbnail}
-                        alt={article.title}
-                        style={{ maxWidth: "100%" }}
-                      />
+                      <img src={article.thumbnail} alt={article.title} style={{ maxWidth: "100%" }} />
                     </Box>
                   )}
                   {article.link && (

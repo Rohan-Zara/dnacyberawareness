@@ -13,10 +13,10 @@ function Navbar() {
           DNA Cyber Threatscape
         </Typography>
         <Box>
-          <Button color="inherit" component="a" href="#Hero">Home</Button>
+          <Button color="inherit" component="a" href="#hero">Home</Button>
           <Button color="inherit" component="a" href="#attacks">Attacks</Button>
           <Button color="inherit" component="a" href="#tips">Tips</Button>
-          <Button color="inherit" component="a" href="#NewsSection">News</Button>
+          <Button color="inherit" component="a" href="#news">News</Button>
           <Button color="inherit" component="a" href="#threatmap">Threat Map</Button>
         </Box>
       </Toolbar>
