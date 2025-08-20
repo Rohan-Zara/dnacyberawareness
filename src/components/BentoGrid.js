@@ -6,7 +6,6 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Fade from "@mui/material/Fade";
 
-
 const attacks = [
   { title: "Phishing", desc: "Tricking users into giving up sensitive info.", img: "imgs/phishing.png", wiki: "https://en.wikipedia.org/wiki/Phishing" },
   { title: "Malware", desc: "Malicious software that damages or disables systems.", img: "imgs/malware.png", wiki: "https://en.wikipedia.org/wiki/Malware" },
@@ -49,69 +48,69 @@ const tips = [
 function BentoGrid() {
   return (
     <Box sx={{ px: { xs: 2, md: 8 }, py: 6 }}>
-  <Typography id="attacks" variant="h4" sx={{ fontWeight: 700, mb: 3, color: "primary.main" }}>
-    Common Cyber Attacks
-  </Typography>
-  <Grid container spacing={2} sx={{ mb: 6 }}>
-    {attacks.map((item, idx) => (
-      <Grid item xs={12} sm={6} md={3} key={idx}>
-        <Fade in timeout={500 + idx * 30}>
-          <Card sx={{ height: "100%", bgcolor: "background.paper", borderRadius: 3 }}>
-            <Box sx={{ height: 150, mb: 2, bgcolor: "#222", borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-              {item.img ? (
-                <img src={item.img} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              ) : (
-                <Typography variant="caption" color="text.secondary">Image here</Typography>
-              )}
-            </Box>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                {item.title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {item.desc}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Fade>
+      <Typography id="attacks" variant="h4" sx={{ fontWeight: 700, mb: 3, color: "primary.main" }}>
+        Common Cyber Attacks
+      </Typography>
+      <Grid container spacing={2} sx={{ mb: 6 }}>
+        {attacks.map((item, idx) => (
+          <Grid item xs={12} sm={6} md={3} key={idx}>
+            <Fade in timeout={500 + idx * 30}>
+              <a href={item.wiki} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                <Card sx={{ height: "100%", bgcolor: "background.paper", borderRadius: 3, transition: "transform 0.2s", "&:hover": { transform: "scale(1.03)" } }}>
+                  <Box sx={{ height: 150, mb: 2, bgcolor: "#222", borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                    {item.img ? (
+                      <img src={item.img} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <Typography variant="caption" color="text.secondary">Image here</Typography>
+                    )}
+                  </Box>
+                  <CardContent>
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                      {item.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {item.desc}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </a>
+            </Fade>
+          </Grid>
+        ))}
       </Grid>
-    ))}
-  </Grid>
- <Typography id="tips" variant="h4" sx={{ fontWeight: 700, mb: 3, color: "secondary.main" }}>
-  Security Tips
-</Typography>
-<Grid container spacing={2}>
-  {tips.map((item, idx) => (
-    <Grid item xs={12} sm={6} md={3} key={idx}>
-      <Fade in timeout={500 + idx * 30}>
-        <Card sx={{ height: "100%", bgcolor: "background.paper", borderRadius: 3 }}>
-          <Box
-            sx={{
-              height: 180,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              overflow: "hidden",
-            }}
-          >
-            <img
-              src={item.img}
-              alt={`Tip ${idx + 1}`}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-              }}
-            />
-          </Box>
-        </Card>
-      </Fade>
-    </Grid>
-  ))}
-</Grid>
-
-</Box>
-
+      <Typography id="tips" variant="h4" sx={{ fontWeight: 700, mb: 3, color: "secondary.main" }}>
+        Security Tips
+      </Typography>
+      <Grid container spacing={2}>
+        {tips.map((item, idx) => (
+          <Grid item xs={12} sm={6} md={3} key={idx}>
+            <Fade in timeout={500 + idx * 30}>
+              <Card sx={{ height: "100%", bgcolor: "background.paper", borderRadius: 3 }}>
+                <Box
+                  sx={{
+                    height: 180,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                  }}
+                >
+                  <img
+                    src={item.img}
+                    alt={`Tip ${idx + 1}`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
+              </Card>
+            </Fade>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
   );
 }
 
