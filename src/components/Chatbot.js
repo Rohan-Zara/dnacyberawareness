@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import Fab from "@mui/material/Fab";
 import Tooltip from "@mui/material/Tooltip";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
@@ -6,802 +6,90 @@ import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
-import Paper from "@mui/material/Paper";
+import IconButton from "@mui/material/IconButton";
+import SendIcon from "@mui/icons-material/Send";
+import CircularProgress from "@mui/material/CircularProgress";
+import Divider from "@mui/material/Divider";
 
-// --- Hardcoded dnadata.json ---
-const dnadata = { 
-  // ⬅️ your full pasted dnadata object here
-  
-  "dnagoa_broadband_plans": [
-    {
-      "duration": "1 Month",
-      "speed": "100 Mbps",
-      "benefits": [
-        "Data limit 500 GB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b9677*"
-        },
-        {
-          "label": "1 Month Plan + OTT",
-          "price": "\u20b9889*"
-        }
-      ],
-      "plan_name": "Goa Basic"
-    },
-    {
-      "duration": "3 Months",
-      "speed": "100 Mbps",
-      "benefits": [
-        "Data limit 1.50 GB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b91948*"
-        },
-        {
-          "label": "3 Months Plan + OTT",
-          "price": "\u20b92584*"
-        }
-      ],
-      "plan_name": "Goa Basic"
-    },
-    {
-      "duration": "6 Months",
-      "speed": "100 Mbps",
-      "benefits": [
-        "Data limit 3.5 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b93219*"
-        },
-        {
-          "label": "6 Months Plan + OTT",
-          "price": "\u20b94364*"
-        }
-      ],
-      "plan_name": "Goa Basic"
-    },
-    {
-      "duration": "12 Months",
-      "speed": "100 Mbps",
-      "benefits": [
-        "Data limit 8 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b96440*"
-        },
-        {
-          "label": "12 Months Plan + OTT",
-          "price": "\u20b98135*"
-        }
-      ],
-      "plan_name": "Goa Basic"
-    },
-    {
-      "duration": "1 Month",
-      "speed": "150 Mbps",
-      "benefits": [
-        "Data limit 1 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b91016*"
-        },
-        {
-          "label": "1 Month Plan + OTT",
-          "price": "\u20b91270*"
-        }
-      ],
-      "plan_name": "Goa Standard"
-    },
-    {
-      "duration": "3 Months",
-      "speed": "150 Mbps",
-      "benefits": [
-        "Data limit 3 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b93008*"
-        },
-        {
-          "label": "3 Months Plan + OTT",
-          "price": "\u20b93643*"
-        }
-      ],
-      "plan_name": "Goa Standard"
-    },
-    {
-      "duration": "6 Months",
-      "speed": "150 Mbps",
-      "benefits": [
-        "Data limit 7 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b94914*"
-        },
-        {
-          "label": "6 Months Plan + OTT",
-          "price": "\u20b96059*"
-        }
-      ],
-      "plan_name": "Goa Standard"
-    },
-    {
-      "duration": "12 Months",
-      "speed": "150 Mbps",
-      "benefits": [
-        "Data limit 18 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b99830*"
-        },
-        {
-          "label": "12 Months Plan + OTT",
-          "price": "\u20b911524*"
-        }
-      ],
-      "plan_name": "Goa Standard"
-    },
-    {
-      "duration": "1 Month",
-      "speed": "300 Mbps",
-      "benefits": [
-        "Data limit 2 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b91482*"
-        },
-        {
-          "label": "1 Month Plan + OTT",
-          "price": "\u20b91694*"
-        }
-      ],
-      "plan_name": "Goa Premium"
-    },
-    {
-      "duration": "3 Months",
-      "speed": "300 Mbps",
-      "benefits": [
-        "Data limit 6 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b94194*"
-        },
-        {
-          "label": "3 Months Plan + OTT",
-          "price": "\u20b94830*"
-        }
-      ],
-      "plan_name": "Goa Premium"
-    },
-    {
-      "duration": "6 Months",
-      "speed": "300 Mbps",
-      "benefits": [
-        "Data limit 18 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b97287*"
-        },
-        {
-          "label": "6 Months Plan + OTT",
-          "price": "\u20b98431*"
-        }
-      ],
-      "plan_name": "Goa Premium"
-    },
-    {
-      "duration": "12 Months",
-      "speed": "300 Mbps",
-      "benefits": [
-        "Data limit 40 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b914575*"
-        },
-        {
-          "label": "12 Months Plan + OTT",
-          "price": "\u20b916270*"
-        }
-      ],
-      "plan_name": "Goa Premium"
-    },
-    {
-      "duration": "1 Month",
-      "speed": "500 Mbps",
-      "benefits": [
-        "Data limit 4 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b92033*"
-        },
-        {
-          "label": "1 Month Plan + OTT",
-          "price": "\u20b92245*"
-        }
-      ],
-      "plan_name": "Goa Ultra"
-    },
-    {
-      "duration": "3 Months",
-      "speed": "500 Mbps",
-      "benefits": [
-        "Data limit 12 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b95084*"
-        },
-        {
-          "label": "3 Months Plan + OTT",
-          "price": "\u20b95720*"
-        }
-      ],
-      "plan_name": "Goa Ultra"
-    },
-    {
-      "duration": "6 Months",
-      "speed": "500 Mbps",
-      "benefits": [
-        "Data limit 40 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b911313*"
-        },
-        {
-          "label": "6 Months Plan + OTT",
-          "price": "\u20b920338*"
-        }
-      ],
-      "plan_name": "Goa Ultra"
-    },
-    {
-      "duration": "12 Months",
-      "speed": "500 Mbps",
-      "benefits": [
-        "Data limit 90 TB",
-        "Post FUP Upto 100 MBPS",
-        "20 OTT's and 300 + TV channels"
-      ],
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b920338*"
-        },
-        {
-          "label": "12 Months Plan + OTT",
-          "price": "\u20b922033*"
-        }
-      ],
-      "plan_name": "Goa Ultra"
-    },
-    {
-      "duration": "1 Month",
-      "speed": "1 Gbps",
-      "benefits": [
-        "Data limit 6 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "1 Month Plan + OTT",
-          "price": "\u20b93982*"
-        }
-      ],
-      "plan_name": "Goa Prime"
-    },
-    {
-      "duration": "3 Months",
-      "speed": "1 Gbps",
-      "benefits": [
-        "Data limit 25 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "3 Month Plan + OTT",
-          "price": "\u20b911864*"
-        }
-      ],
-      "plan_name": "Goa Prime"
-    },
-    {
-      "duration": "6 Months",
-      "speed": "1 Gbps",
-      "benefits": [
-        "Data limit 70 TB",
-        "Post FUP Upto 100 MBPS",
-        "Free 20 OTT's and 300 + TV channels*only for new subscribers"
-      ],
-      "prices": [
-        {
-          "label": "6 Month Plan + OTT",
-          "price": "\u20b919491*"
-        }
-      ],
-      "plan_name": "Goa Prime"
-    },
-    {
-      "duration": "12 Months",
-      "speed": "1 Gbps",
-      "benefits": [
-        "Data limit 150 TB",
-        "Post FUP Upto 100 MBPS",
-        "20 OTT's and 300 + TV channels"
-      ],
-      "prices": [
-        {
-          "label": "12 Month Plan + OTT",
-          "price": "\u20b939830*"
-        }
-      ],
-      "plan_name": "Goa Prime"
-    }
+// 🔐 Put your key in .env as REACT_APP_GEMINI_API_KEY
+const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
+
+// 🗂 Inline copy of your dnadata.json (exactly as you shared)
+const DNADATA = {
+  dnagoa_broadband_plans: [
+    { duration: "1 Month", speed: "100 Mbps", benefits: ["Data limit 500 GB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹677*" },{ label: "1 Month Plan + OTT", price: "₹889*" }], plan_name: "Goa Basic" },
+    { duration: "3 Months", speed: "100 Mbps", benefits: ["Data limit 1.50 GB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹1948*" },{ label: "3 Months Plan + OTT", price: "₹2584*" }], plan_name: "Goa Basic" },
+    { duration: "6 Months", speed: "100 Mbps", benefits: ["Data limit 3.5 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹3219*" },{ label: "6 Months Plan + OTT", price: "₹4364*" }], plan_name: "Goa Basic" },
+    { duration: "12 Months", speed: "100 Mbps", benefits: ["Data limit 8 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹6440*" },{ label: "12 Months Plan + OTT", price: "₹8135*" }], plan_name: "Goa Basic" },
+    { duration: "1 Month", speed: "150 Mbps", benefits: ["Data limit 1 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹1016*" },{ label: "1 Month Plan + OTT", price: "₹1270*" }], plan_name: "Goa Standard" },
+    { duration: "3 Months", speed: "150 Mbps", benefits: ["Data limit 3 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹3008*" },{ label: "3 Months Plan + OTT", price: "₹3643*" }], plan_name: "Goa Standard" },
+    { duration: "6 Months", speed: "150 Mbps", benefits: ["Data limit 7 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹4914*" },{ label: "6 Months Plan + OTT", price: "₹6059*" }], plan_name: "Goa Standard" },
+    { duration: "12 Months", speed: "150 Mbps", benefits: ["Data limit 18 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹9830*" },{ label: "12 Months Plan + OTT", price: "₹11524*" }], plan_name: "Goa Standard" },
+    { duration: "1 Month", speed: "300 Mbps", benefits: ["Data limit 2 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹1482*" },{ label: "1 Month Plan + OTT", price: "₹1694*" }], plan_name: "Goa Premium" },
+    { duration: "3 Months", speed: "300 Mbps", benefits: ["Data limit 6 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹4194*" },{ label: "3 Months Plan + OTT", price: "₹4830*" }], plan_name: "Goa Premium" },
+    { duration: "6 Months", speed: "300 Mbps", benefits: ["Data limit 18 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹7287*" },{ label: "6 Months Plan + OTT", price: "₹8431*" }], plan_name: "Goa Premium" },
+    { duration: "12 Months", speed: "300 Mbps", benefits: ["Data limit 40 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹14575*" },{ label: "12 Months Plan + OTT", price: "₹16270*" }], plan_name: "Goa Premium" },
+    { duration: "1 Month", speed: "500 Mbps", benefits: ["Data limit 4 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹2033*" },{ label: "1 Month Plan + OTT", price: "₹2245*" }], plan_name: "Goa Ultra" },
+    { duration: "3 Months", speed: "500 Mbps", benefits: ["Data limit 12 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹5084*" },{ label: "3 Months Plan + OTT", price: "₹5720*" }], plan_name: "Goa Ultra" },
+    { duration: "6 Months", speed: "500 Mbps", benefits: ["Data limit 40 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹11313*" },{ label: "6 Months Plan + OTT", price: "₹20338*" }], plan_name: "Goa Ultra" },
+    { duration: "12 Months", speed: "500 Mbps", benefits: ["Data limit 90 TB","Post FUP Upto 100 MBPS","20 OTT's and 300 + TV channels"], prices: [{ label: "Normal Plan", price: "₹20338*" },{ label: "12 Months Plan + OTT", price: "₹22033*" }], plan_name: "Goa Ultra" },
+    { duration: "1 Month", speed: "1 Gbps", benefits: ["Data limit 6 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "1 Month Plan + OTT", price: "₹3982*" }], plan_name: "Goa Prime" },
+    { duration: "3 Months", speed: "1 Gbps", benefits: ["Data limit 25 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "3 Month Plan + OTT", price: "₹11864*" }], plan_name: "Goa Prime" },
+    { duration: "6 Months", speed: "1 Gbps", benefits: ["Data limit 70 TB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "6 Month Plan + OTT", price: "₹19491*" }], plan_name: "Goa Prime" },
+    { duration: "12 Months", speed: "1 Gbps", benefits: ["Data limit 150 TB","Post FUP Upto 100 MBPS","20 OTT's and 300 + TV channels"], prices: [{ label: "12 Month Plan + OTT", price: "₹39830*" }], plan_name: "Goa Prime" }
   ],
-  "enterprise_broadband_plans": [
-    {
-      "plan_name": "20 Mbps",
-      "speed": "20 Mbps",
-      "duration": "1 Month",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b9599*"
-        }
-      ]
-    },
-    {
-      "plan_name": "20 Mbps",
-      "speed": "20 Mbps",
-      "duration": "3 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b91707*"
-        }
-      ]
-    },
-    {
-      "plan_name": "20 Mbps",
-      "speed": "20 Mbps",
-      "duration": "6 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b93307*"
-        }
-      ]
-    },
-    {
-      "plan_name": "20 Mbps",
-      "speed": "20 Mbps",
-      "duration": "12 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b96614*"
-        }
-      ]
-    },
-    {
-      "plan_name": "30 Mbps",
-      "speed": "30 Mbps",
-      "duration": "1 Month",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b9636*"
-        },
-        {
-          "label": "1 Month Plan + OTT",
-          "price": "\u20b9848*"
-        }
-      ]
-    },
-    {
-      "plan_name": "30 Mbps",
-      "speed": "30 Mbps",
-      "duration": "3 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b91811*"
-        },
-        {
-          "label": "3 Months Plan + OTT",
-          "price": "\u20b92449*"
-        }
-      ]
-    },
-    {
-      "plan_name": "30 Mbps",
-      "speed": "30 Mbps",
-      "duration": "6 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b93509*"
-        },
-        {
-          "label": "6 Months Plan + OTT",
-          "price": "\u20b94654*"
-        }
-      ]
-    },
-    {
-      "plan_name": "30 Mbps",
-      "speed": "30 Mbps",
-      "duration": "12 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b97018*"
-        },
-        {
-          "label": "12 Months Plan + OTT",
-          "price": "\u20b98713*"
-        }
-      ]
-    },
-    {
-      "plan_name": "40 Mbps",
-      "speed": "40 Mbps",
-      "duration": "1 Month",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b9718*"
-        },
-        {
-          "label": "1 Month Plan + OTT",
-          "price": "\u20b9930*"
-        }
-      ]
-    },
-    {
-      "plan_name": "40 Mbps",
-      "speed": "40 Mbps",
-      "duration": "3 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b92046*"
-        },
-        {
-          "label": "3 Months Plan + OTT",
-          "price": "\u20b92796*"
-        }
-      ]
-    },
-    {
-      "plan_name": "40 Mbps",
-      "speed": "40 Mbps",
-      "duration": "6 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b93963*"
-        },
-        {
-          "label": "6 Months Plan + OTT",
-          "price": "\u20b95108*"
-        }
-      ]
-    },
-    {
-      "plan_name": "40 Mbps",
-      "speed": "40 Mbps",
-      "duration": "12 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b97926*"
-        },
-        {
-          "label": "12 Months Plan + OTT",
-          "price": "\u20b99621*"
-        }
-      ]
-    },
-    {
-      "plan_name": "50 Mbps",
-      "speed": "50 Mbps",
-      "duration": "1 Month",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b91099*"
-        },
-        {
-          "label": "1 Month Plan + OTT",
-          "price": "\u20b91311*"
-        }
-      ]
-    },
-    {
-      "plan_name": "50 Mbps",
-      "speed": "50 Mbps",
-      "duration": "3 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b93132*"
-        },
-        {
-          "label": "3 Months Plan + OTT",
-          "price": "\u20b93770*"
-        }
-      ]
-    },
-    {
-      "plan_name": "50 Mbps",
-      "speed": "50 Mbps",
-      "duration": "6 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b96067*"
-        },
-        {
-          "label": "6 Months Plan + OTT",
-          "price": "\u20b97212*"
-        }
-      ]
-    },
-    {
-      "plan_name": "50 Mbps",
-      "speed": "50 Mbps",
-      "duration": "12 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b912134*"
-        },
-        {
-          "label": "12 Months Plan + OTT",
-          "price": "\u20b913829*"
-        }
-      ]
-    },
-    {
-      "plan_name": "75 Mbps",
-      "speed": "75 Mbps",
-      "duration": "1 Month",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b91599*"
-        },
-        {
-          "label": "1 Month Plan + OTT",
-          "price": "\u20b91811*"
-        }
-      ]
-    },
-    {
-      "plan_name": "75 Mbps",
-      "speed": "75 Mbps",
-      "duration": "3 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b94557*"
-        },
-        {
-          "label": "3 Months Plan + OTT",
-          "price": "\u20b95195*"
-        }
-      ]
-    },
-    {
-      "plan_name": "75 Mbps",
-      "speed": "75 Mbps",
-      "duration": "6 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b98827*"
-        },
-        {
-          "label": "6 Months Plan + OTT",
-          "price": "\u20b99972*"
-        }
-      ]
-    },
-    {
-      "plan_name": "75 Mbps",
-      "speed": "75 Mbps",
-      "duration": "12 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "\u20b917654*"
-        },
-        {
-          "label": "12 Months Plan + OTT",
-          "price": "\u20b919349*"
-        }
-      ]
-    },
-    {
-      "plan_name": "100 Mbps",
-      "speed": "100 Mbps",
-      "duration": "1 Month",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "1999*"
-        },
-        {
-          "label": "1 Month Plan + OTT",
-          "price": "2211*"
-        }
-      ]
-    },
-    {
-      "plan_name": "100 Mbps",
-      "speed": "100 Mbps",
-      "duration": "3 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "5697*"
-        },
-        {
-          "label": "3 Months Plan + OTT",
-          "price": "6335*"
-        }
-      ]
-    },
-    {
-      "plan_name": "100 Mbps",
-      "speed": "100 Mbps",
-      "duration": "6 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "11034*"
-        },
-        {
-          "label": "6 Months Plan + OTT",
-          "price": "12179*"
-        }
-      ]
-    },
-    {
-      "plan_name": "100 Mbps",
-      "speed": "100 Mbps",
-      "duration": "12 Months",
-      "prices": [
-        {
-          "label": "Normal Plan",
-          "price": "22068*"
-        },
-        {
-          "label": "12 Months Plan + OTT",
-          "price": "23763*"
-        }
-      ]
-    }
+  enterprise_broadband_plans: [
+    { plan_name: "20 Mbps", speed: "20 Mbps", duration: "1 Month", prices: [{ label: "Normal Plan", price: "₹599*" }] },
+    { plan_name: "20 Mbps", speed: "20 Mbps", duration: "3 Months", prices: [{ label: "Normal Plan", price: "₹1707*" }] },
+    { plan_name: "20 Mbps", speed: "20 Mbps", duration: "6 Months", prices: [{ label: "Normal Plan", price: "₹3307*" }] },
+    { plan_name: "20 Mbps", speed: "20 Mbps", duration: "12 Months", prices: [{ label: "Normal Plan", price: "₹6614*" }] },
+    { plan_name: "30 Mbps", speed: "30 Mbps", duration: "1 Month", prices: [{ label: "Normal Plan", price: "₹636*" },{ label: "1 Month Plan + OTT", price: "₹848*" }] },
+    { plan_name: "30 Mbps", speed: "30 Mbps", duration: "3 Months", prices: [{ label: "Normal Plan", price: "₹1811*" },{ label: "3 Months Plan + OTT", price: "₹2449*" }] },
+    { plan_name: "30 Mbps", speed: "30 Mbps", duration: "6 Months", prices: [{ label: "Normal Plan", price: "₹3509*" },{ label: "6 Months Plan + OTT", price: "₹4654*" }] },
+    { plan_name: "30 Mbps", speed: "30 Mbps", duration: "12 Months", prices: [{ label: "Normal Plan", price: "₹7018*" },{ label: "12 Months Plan + OTT", price: "₹8713*" }] },
+    { plan_name: "40 Mbps", speed: "40 Mbps", duration: "1 Month", prices: [{ label: "Normal Plan", price: "₹718*" },{ label: "1 Month Plan + OTT", price: "₹930*" }] },
+    { plan_name: "40 Mbps", speed: "40 Mbps", duration: "3 Months", prices: [{ label: "Normal Plan", price: "₹2046*" },{ label: "3 Months Plan + OTT", price: "₹2796*" }] },
+    { plan_name: "40 Mbps", speed: "40 Mbps", duration: "6 Months", prices: [{ label: "Normal Plan", price: "₹3963*" },{ label: "6 Months Plan + OTT", price: "₹5108*" }] },
+    { plan_name: "40 Mbps", speed: "40 Mbps", duration: "12 Months", prices: [{ label: "Normal Plan", price: "₹7926*" },{ label: "12 Months Plan + OTT", price: "₹9621*" }] },
+    { plan_name: "50 Mbps", speed: "50 Mbps", duration: "1 Month", prices: [{ label: "Normal Plan", price: "₹1099*" },{ label: "1 Month Plan + OTT", price: "₹1311*" }] },
+    { plan_name: "50 Mbps", speed: "50 Mbps", duration: "3 Months", prices: [{ label: "Normal Plan", price: "₹3132*" },{ label: "3 Months Plan + OTT", price: "₹3770*" }] },
+    { plan_name: "50 Mbps", speed: "50 Mbps", duration: "6 Months", prices: [{ label: "Normal Plan", price: "₹6067*" },{ label: "6 Months Plan + OTT", price: "₹7212*" }] },
+    { plan_name: "50 Mbps", speed: "50 Mbps", duration: "12 Months", prices: [{ label: "Normal Plan", price: "₹12134*" },{ label: "12 Months Plan + OTT", price: "₹13829*" }] },
+    { plan_name: "75 Mbps", speed: "75 Mbps", duration: "1 Month", prices: [{ label: "Normal Plan", price: "₹1599*" },{ label: "1 Month Plan + OTT", price: "₹1811*" }] },
+    { plan_name: "75 Mbps", speed: "75 Mbps", duration: "3 Months", prices: [{ label: "Normal Plan", price: "₹4557*" },{ label: "3 Months Plan + OTT", price: "₹5195*" }] },
+    { plan_name: "75 Mbps", speed: "75 Mbps", duration: "6 Months", prices: [{ label: "Normal Plan", price: "₹8827*" },{ label: "6 Months Plan + OTT", price: "₹9972*" }] },
+    { plan_name: "75 Mbps", speed: "75 Mbps", duration: "12 Months", prices: [{ label: "Normal Plan", price: "₹17654*" },{ label: "12 Months Plan + OTT", price: "₹19349*" }] },
+    { plan_name: "100 Mbps", speed: "100 Mbps", duration: "1 Month", prices: [{ label: "Normal Plan", price: "1999*" },{ label: "1 Month Plan + OTT", price: "2211*" }] },
+    { plan_name: "100 Mbps", speed: "100 Mbps", duration: "3 Months", prices: [{ label: "Normal Plan", price: "5697*" },{ label: "3 Months Plan + OTT", price: "6335*" }] },
+    { plan_name: "100 Mbps", speed: "100 Mbps", duration: "6 Months", prices: [{ label: "Normal Plan", price: "11034*" },{ label: "6 Months Plan + OTT", price: "12179*" }] },
+    { plan_name: "100 Mbps", speed: "100 Mbps", duration: "12 Months", prices: [{ label: "Normal Plan", price: "22068*" },{ label: "12 Months Plan + OTT", price: "23763*" }] }
   ],
-  "faq_data": {
-    "faqs": [
-      {
-        "question": "How to apply for a new broadband connection?",
-        "answer": "For a new Broadband Connection, you can call us at 0832-6747575 or contact us here: https://dnagoa.com/contact/"
-      },
-      {
-        "question": "How do I test my internet speed?",
-        "answer": "You can test your Internet Speed by clicking here: https://www.google.com/search?q=internet+speed+test"
-      },
-      {
-        "question": "Is DNA Goa a secured ISP?",
-        "answer": "DNA Goa is a 100% secured internet service provider with the vision of connecting every Goan with high-speed internet."
-      },
-      {
-        "question": "How to make a payment while applying for a DNA Goa?",
-        "answer": "You can pay online by logging in with your registered user id and password on the DNA Broadband internet connection site."
-      },
-      {
-        "question": "My internet connection is not working?",
-        "answer": "If you are having network issues, try resetting your WiFi router. If the problem persists, contact us at 0832-6747575."
-      }
+  faq_data: {
+    faqs: [
+      { question: "How to apply for a new broadband connection?", answer: "For a new Broadband Connection, you can call us at 0832-6747575 or contact us here: https://dnagoa.com/contact/" },
+      { question: "How do I test my internet speed?", answer: "You can test your Internet Speed by clicking here: https://www.google.com/search?q=internet+speed+test" },
+      { question: "Is DNA Goa a secured ISP?", answer: "DNA Goa is a 100% secured internet service provider with the vision of connecting every Goan with high-speed internet." },
+      { question: "How to make a payment while applying for a DNA Goa?", answer: "You can pay online by logging in with your registered user id and password on the DNA Broadband internet connection site." },
+      { question: "My internet connection is not working?", answer: "If you are having network issues, try resetting your WiFi router. If the problem persists, contact us at 0832-6747575." }
     ],
-    "common_queries": [
-      {
-        "question": "Why is my internet slow?",
-        "answer": "Check for multiple devices using bandwidth, restart your router, and contact support if the issue persists."
-      },
-      {
-        "question": "How do I change my WiFi password?",
-        "answer": "Login to your router admin page (usually 192.168.0.1 or 192.168.1.1), go to Wireless Settings, and update the password."
-      }
+    common_queries: [
+      { question: "Why is my internet slow?", answer: "Check for multiple devices using bandwidth, restart your router, and contact support if the issue persists." },
+      { question: "How do I change my WiFi password?", answer: "Login to your router admin page (usually 192.168.0.1 or 192.168.1.1), go to Wireless Settings, and update the password." }
     ],
-    "router_setup_steps": [
+    router_setup_steps: [
       "Connect the router to power and your modem.",
       "Open a browser and go to the router's admin page (e.g., 192.168.0.1).",
       "Login with default credentials (check router label).",
       "Set up your WiFi name (SSID) and password.",
       "Save settings and restart the router."
     ],
-    "router_types": [
-      {
-        "type": "Single-band Router",
-        "description": "Supports only 2.4GHz frequency, suitable for basic usage."
-      },
-      {
-        "type": "Dual-band Router",
-        "description": "Supports both 2.4GHz and 5GHz frequencies, better for streaming and gaming."
-      },
-      {
-        "type": "Mesh Router",
-        "description": "Multiple units for whole-home coverage, ideal for large spaces."
-      }
+    router_types: [
+      { type: "Single-band Router", description: "Supports only 2.4GHz frequency, suitable for basic usage." },
+      { type: "Dual-band Router", description: "Supports both 2.4GHz and 5GHz frequencies, better for streaming and gaming." },
+      { type: "Mesh Router", description: "Multiple units for whole-home coverage, ideal for large spaces." }
     ]
   },
-  "terms_and_conditions": [
+  terms_and_conditions: [
     "All plans are prepaid in nature.",
     "ONU Security Deposit Rs. 1000/- (Refundable). ONT Device (2 Antenna & 4 Antenna) will be provided on a security deposit of Rs. 2,000/- & Rs. 2,500/- respectively (Refundable).",
     "Package amount is not refundable.",
@@ -814,294 +102,359 @@ const dnadata = {
     "DNA-GOA will not be responsible for purchase of any additional materials (such as Wi-Fi router, extender, etc.) from DNA-GOA employees personally.",
     "Post FUP speeds up to 100 Mbps is applicable over associated servers, otherwise post FUP speeds are capped at 10 Mbps, 15 Mbps, 30 Mbps, 60 Mbps and 90 Mbps respectively.",
     "All devices provided on security deposit are to be returned in working condition along with the respective charger to DNA GOA Head Office. If failed to provide in working condition then security deposit will be adjusted or forfeited.",
-    "Refundable deposit will be refunded to the customers upon successful submission of devices in working condition within 15\u201320 working days.",
+    "Refundable deposit will be refunded to the customers upon successful submission of devices in working condition within 15–20 working days.",
     "OTT & TV Channels plans once activated, cannot be transferred, upgraded, or refunded.",
     "2 screens shall be available with our OTT & TV Channels plans (e.g., 2 smartphones / 1 smartphone and 1 smart TV). 3rd device once logged in, 1st device will be logged out automatically.",
     "OTT & TV Channels will be logged in through the registered primary contact number attached with the particular user-id of the DNA GOA account only.",
     "OTT & TV Channels content will be available through Playbox TV APP available on the Play Store and App Store, in collaboration with the DNA GOA user account.",
     "Our OTT & TV Channels plan will give access to 350+ TV channels and 19 OTT platforms, and the company reserves the right to add or delete any OTT service or TV channel without any prior intimation."
   ]
-
 };
 
-// --- Simple NLP helper ---
-function textSimilarity(a, b) {
-  const wordsA = a.toLowerCase().split(/\W+/).filter(Boolean);
-  const wordsB = b.toLowerCase().split(/\W+/).filter(Boolean);
-  if (!wordsA.length || !wordsB.length) return 0;
-  const setA = new Set(wordsA);
-  const setB = new Set(wordsB);
-  const intersection = [...setA].filter((w) => setB.has(w));
-  return intersection.length / Math.max(setA.size, setB.size);
+// ---------- helpers (safe + robust) ----------
+const lc = (v) => (typeof v === "string" ? v.toLowerCase() : "");
+const trim = (v) => (typeof v === "string" ? v.trim() : "");
+// --- inside localAnswer(), update normSpeed ---
+const normSpeed = (txt) => {
+  const m = lc(txt).match(/(\d+(?:\.\d+)?)\s*(g|m)bps/);
+  if (!m) return null;
+  const n = m[1];
+  const unit = m[2].toLowerCase() === "g" ? "Gbps" : "Mbps";
+  return unit === "Gbps" ? `${n} Gbps` : `${parseInt(n, 10)} Mbps`;
+};
+
+
+const formatPlanBlock = (plans) => {
+  if (!plans?.length) return "";
+  // group by plan_name
+  const byPlan = plans.reduce((acc, p) => {
+    const key = p.plan_name || "Plan";
+    acc[key] = acc[key] || [];
+    acc[key].push(p);
+    return acc;
+  }, {});
+  let out = "";
+  Object.entries(byPlan).forEach(([name, items]) => {
+    out += `\n${name}:\n`;
+    items.forEach((p) => {
+      const priceStr = (p.prices || [])
+        .map((pr) => `${pr.label}: ${pr.price}`)
+        .join(", ");
+      out += `• ${p.duration}: ${priceStr}\n`;
+    });
+  });
+  return out.trim();
+};
+
+const localAnswer = (q) => {
+  const text = lc(q);
+
+  // greeting
+  if (/^(hi|hello|hey)\b/.test(text)) {
+    return "Hi! I’m your Cybersecurity Assistant 🤖 for DNA Goa broadband. Ask me about plans, prices, OTT, enterprise packs, FAQs, router setup, or terms.";
+  }
+
+  // terms & conditions
+  if (text.includes("terms") || text.includes("conditions")) {
+    return "Terms & Conditions (summary):\n" + DNADATA.terms_and_conditions.map((t, i) => `${i + 1}. ${t}`).join("\n");
+  }
+
+  // router info
+  if (text.includes("router")) {
+    const steps = DNADATA.faq_data.router_setup_steps || [];
+    const types = DNADATA.faq_data.router_types || [];
+    return (
+      "Router setup:\n" +
+      steps.map((s, i) => `${i + 1}. ${s}`).join("\n") +
+      "\n\nRouter types:\n" +
+      types.map((t) => `• ${t.type}: ${t.description}`).join("\n")
+    );
+  }
+
+  // FAQ match (loose)
+  const allFaqs = [
+    ...(DNADATA.faq_data?.faqs || []),
+    ...(DNADATA.faq_data?.common_queries || [])
+  ];
+  for (const f of allFaqs) {
+    const qstr = lc(f.question || "");
+    if (!qstr) continue;
+    if (text.includes(qstr) || qstr.includes(text)) {
+      return f.answer || "";
+    }
+  }
+
+  // Speed-specific plans (e.g., "100 mbps", "1 gbps")
+  const speedWanted = normSpeed(text);
+  const isEnterprise = text.includes("enterprise") || text.includes("business") || text.includes("office");
+
+  if (speedWanted) {
+    if (isEnterprise) {
+      const plans = (DNADATA.enterprise_broadband_plans || []).filter((p) => lc(p.speed) === lc(speedWanted));
+      if (plans.length) {
+        return `Enterprise ${speedWanted} plans:\n` + formatPlanBlock(plans);
+      }
+    }
+    const plans = (DNADATA.dnagoa_broadband_plans || []).filter((p) => lc(p.speed) === lc(speedWanted));
+    if (plans.length) {
+      return `${speedWanted} plans:\n` + formatPlanBlock(plans);
+    }
+  }
+
+  // By plan name keywords (basic / standard / premium / ultra / prime)
+  const planKey = ["basic", "standard", "premium", "ultra", "prime"].find((k) => text.includes(k));
+  if (planKey) {
+    const nameMap = {
+      basic: "Goa Basic",
+      standard: "Goa Standard",
+      premium: "Goa Premium",
+      ultra: "Goa Ultra",
+      prime: "Goa Prime",
+      enterprise_broadband_plans:"20 Mbps, 30 Mbps, 40 Mbps, 50 Mbps, 75 Mbps, 100 Mbps"
+    };
+    const target = nameMap[planKey];
+    const plans = (DNADATA.dnagoa_broadband_plans || []).filter((p) => lc(p.plan_name) === lc(target));
+    if (plans.length) {
+      const spds = [...new Set(plans.map((p) => p.speed))].join(", ");
+      return `${target} (${spds})\n` + formatPlanBlock(plans);
+    }
+  }
+
+  // Generic "plans" query
+  if (text.includes("plan")) {
+    const speeds = ["20 Mbps", "75 Mbps","100 Mbps", "150 Mbps", "300 Mbps", "500 Mbps", "1 Gbps"];
+    const quick = speeds
+      .map((s) => {
+        const items = (DNADATA.dnagoa_broadband_plans || []).filter((p) => lc(p.speed) === lc(s));
+        if (!items.length) return null;
+        const first = items[0];
+        const priceExample = first?.prices?.[0]?.price ? ` (from ${first.prices[0].price})` : "";
+        return `• ${s}${priceExample}`;
+      })
+      .filter(Boolean)
+      .join("\n");
+    return "Popular broadband speeds:\n" + quick + "\n\nAsk me, e.g., “100 mbps plans” or “Goa Premium”.";
+  }
+
+  // No local match
+  return null;
+};
+
+// ---------- Gemini fallback ----------
+async function askGemini(userText) {
+  if (!GEMINI_API_KEY) {
+    return "I couldn’t find a local answer and no Gemini API key is set.";
+  }
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+  const prompt =
+    `You are a concise assistant for DNA Goa broadband. ` +
+    `User question: "${userText}". ` +
+    `If you don't know or can't verify online, reply: "Sorry, I couldn't find an answer." ` +
+    `Keep answers short and relevant to DNA Goa only.`;
+
+  const payload = {
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: prompt }]
+      }
+    ]
+  };
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    const text =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      "Sorry, I couldn't find an answer.";
+    return text;
+  } catch (e) {
+    console.error("Gemini error:", e);
+    return "Sorry, I couldn't find an answer.";
+  }
 }
 
-function Chatbot() {
+// ---------- UI ----------
+function Message({ sender, text }) {
+  const isUser = sender === "user";
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: isUser ? "flex-end" : "flex-start",
+        mb: 1
+      }}
+    >
+      <Box
+        sx={{
+          maxWidth: "75%",
+          px: 1.5,
+          py: 1,
+          borderRadius: 2,
+          bgcolor: isUser ? "primary.main" : "#333",
+          color: isUser ? "primary.contrastText" : "text.primary",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
+          fontSize: 14
+        }}
+      >
+        {text}
+      </Box>
+    </Box>
+  );
+}
+
+// --- in Chatbot component, hide FAB when drawer open + add Quick Tools ---
+export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    {
-      sender: "bot",
-      text: "👋 Hello! I'm your DNA Goa Assistant.\nChoose a quick option below or type your question.",
-    },
+    { sender: "bot", text: "Cyber Chatbot\nHi! I’m your Cybersecurity Assistant 🤖. Ask me anything about DNA Goa plans, OTT, enterprise, FAQs, or router help." }
   ]);
   const [input, setInput] = useState("");
-  const chatRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const listRef = useRef(null);
 
-  useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }
-  }, [messages]);
+  // helper to trigger quick queries
+  const quickAsk = (q) => {
+    setInput(q);
+    setTimeout(() => send(q), 50);
+  };
 
-  const handleSend = async (textOverride) => {
-    const query = textOverride || input;
-    if (!query.trim()) return;
-
-    const userMessage = { sender: "user", text: query };
-    setMessages((prev) => [...prev, userMessage]);
+  const send = async (forced) => {
+    const query = trim(forced || input);
+    if (!query) return;
+    setMessages((m) => [...m, { sender: "user", text: query }]);
     setInput("");
+    setLoading(true);
 
-    // 🔎 Step 1: Search locally
-    const localAnswer = searchLocalData(query);
-    if (localAnswer) {
-      setMessages((prev) => [...prev, { sender: "bot", text: localAnswer }]);
+    // local
+    const local = localAnswer(query);
+    if (local) {
+      setMessages((m) => [...m, { sender: "bot", text: local }]);
+      setLoading(false);
       return;
     }
 
-    // 🌐 Step 2: Fallback Gemini
-    const geminiAnswer = await callGeminiAPI(query);
-    setMessages((prev) => [...prev, { sender: "bot", text: geminiAnswer }]);
+    // fallback
+    const reply = await askGemini(query);
+    setMessages((m) => [...m, { sender: "bot", text: reply }]);
+    setLoading(false);
   };
 
-  // --- Search local data ---
-  // --- smart search for dnadata ---
-const searchLocalData = (query) => {
-  if (!dnadata) return null;
-  const lowerQ = query.toLowerCase();
-
-  // 🎯 Shortcut matching
-  if (lowerQ.includes("home") || lowerQ.includes("broadband") || lowerQ.includes("goa plan")) {
-    return dnadata.dnagoa_broadband_plans
-      .map((p) =>
-        `📶 ${p.plan_name} (${p.duration}) - ${p.speed}\n💡 ${p.benefits.join(
-          ", "
-        )}\n💰 ${p.prices.map((pr) => `${pr.label}: ${pr.price}`).join(" | ")}`
-      )
-      .join("\n\n");
-  }
-
-  if (lowerQ.includes("enterprise")) {
-    return dnadata.enterprise_broadband_plans
-      .map(
-        (p) =>
-          `🏢 ${p.plan_name} (${p.duration}) - ${p.speed}\n💰 ${p.prices
-            .map((pr) => `${pr.label}: ${pr.price}`)
-            .join(" | ")}`
-      )
-      .join("\n\n");
-  }
-
-  if (lowerQ.includes("faq") || lowerQ.includes("question")) {
-    return dnadata.faq_data.faqs
-      .map((f) => `❓ ${f.question}\n➡️ ${f.answer}`)
-      .join("\n\n");
-  }
-
-  if (lowerQ.includes("router setup")) {
-    return dnadata.faq_data.router_setup_steps
-      .map((s, i) => `${i + 1}. ${s}`)
-      .join("\n");
-  }
-
-  if (lowerQ.includes("router type")) {
-    return dnadata.faq_data.router_types
-      .map((r) => `📡 ${r.type}: ${r.description}`)
-      .join("\n\n");
-  }
-
-  if (lowerQ.includes("terms")) {
-    return dnadata.terms_and_conditions.map((t, i) => `${i + 1}. ${t}`).join("\n\n");
-  }
-
-  // 🔍 Fuzzy NLP search across FAQs + common queries
-  const sections = [];
-  dnadata.faq_data.faqs.forEach((f) =>
-    sections.push({ title: f.question, desc: f.answer })
-  );
-  dnadata.faq_data.common_queries.forEach((f) =>
-    sections.push({ title: f.question, desc: f.answer })
-  );
-
-  let bestMatch = null;
-  let bestScore = 0;
-  sections.forEach((item) => {
-    const score =
-      textSimilarity(query, item.title) + textSimilarity(query, item.desc);
-    if (score > bestScore) {
-      bestScore = score;
-      bestMatch = item;
-    }
-  });
-
-  if (bestScore > 0.2 && bestMatch) {
-    return `❓ ${bestMatch.title}\n➡️ ${bestMatch.desc}`;
-  }
-
-  return null; // nothing found → Gemini fallback
-};
-
-
-  // --- Gemini API ---
-  const callGeminiAPI = async (query) => {
-    try {
-      const res = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-goog-api-key": process.env.REACT_APP_GEMINI_API_KEY,
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: query }] }],
-          }),
-        }
-      );
-      const data = await res.json();
-      return (
-        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "Sorry, I couldn’t find an answer."
-      );
-    } catch (err) {
-      return "⚠️ Error connecting to Gemini API.";
+  const onKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
     }
   };
 
-  // --- Quick Replies ---
-  const quickReplies = [
-    { label: "🏠 Home Plans", query: "Show me home broadband plans" },
-    { label: "🏢 Enterprise Plans", query: "Show me enterprise plans" },
-    { label: "❓ FAQs", query: "Show me FAQs" },
-    { label: "📶 Router Setup", query: "How to setup my router?" },
-    { label: "📜 Terms", query: "Show me terms and conditions" },
-  ];
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  }, [messages, open, loading]);
 
   return (
     <>
-      <Tooltip title="Chatbot">
-        <Fab
-          color="secondary"
-          sx={{ position: "fixed", bottom: 24, right: 24, zIndex: 1500 }}
-          onClick={() => setOpen(true)}
-        >
-          <SmartToyIcon />
-        </Fab>
-      </Tooltip>
+      {!open && (
+        <Tooltip title="Chatbot">
+          <Fab
+            color="secondary"
+            sx={{ position: "fixed", bottom: 24, right: 24, zIndex: 1500 }}
+            onClick={() => setOpen(true)}
+          >
+            <SmartToyIcon />
+          </Fab>
+        </Tooltip>
+      )}
 
       <Drawer anchor="right" open={open} onClose={() => setOpen(false)}>
-        <Box
-          sx={{
-            width: 380,
-            p: 2,
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            bgcolor: "background.default",
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2, color: "" }}>
-            DNABOT
-          </Typography>
-
-          {/* Chat window */}
-          <Paper
-            ref={chatRef}
-            elevation={3}
-            sx={{
-              flex: 1,
-              overflowY: "auto",
-              bgcolor: "background.deafult",
-              borderRadius: 2,
-              p: 2,
-              mb: 1.5,
-            }}
-          >
-            {messages.map((msg, i) => (
-              <Box
-                key={i}
-                sx={{
-                  display: "flex",
-                  justifyContent:
-                    msg.sender === "user" ? "flex-end" : "flex-start",
-                  mb: 1,
-                }}
-              >
-                <Box
-                  sx={{
-                    px: 1.5,
-                    py: 1,
-                    borderRadius: 2,
-                    maxWidth: "75%",
-                    color: "#fff",
-                    bgcolor: msg.sender === "user" ? "#45a29e" : "#66fcf1",
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    sx={{ whiteSpace: "pre-line", color: "#000" }}
-                  >
-                    {msg.text}
-                  </Typography>
-                </Box>
-              </Box>
-            ))}
-          </Paper>
-
-          {/* Quick Replies */}
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>
-            {quickReplies.map((qr, idx) => (
-              <Chip
-                key={idx}
-                label={qr.label}
-                onClick={() => handleSend(qr.query)}
-                sx={{
-                  bgcolor: "#45a29e",
-                  color: "#fff",
-                  "&:hover": { bgcolor: "#66fcf1", color: "#000" },
-                }}
-              />
-            ))}
+        <Box sx={{ width: 380, height: "100%", display: "flex", flexDirection: "column", bgcolor: "background.default" }}>
+          <Box sx={{ p: 2, bgcolor: "grey.900", color: "white" }}>
+            <Typography variant="h6" sx={{ color: "cyan" }}>Cyber Chatbot</Typography>
+            <Typography variant="body2" color="text.secondary">
+              AIis{GEMINI_API_KEY ? "ON" : "OFF"}.
+            </Typography>
           </Box>
+          <Divider />
+          
+          {/* Quick tools */}
+          {/* Quick tools */}
+<Box sx={{ p: 1.5, display: "flex", gap: 1, justifyContent: "center" }}>
+  <Box sx={{ display: "flex", gap: 1 }}>
+    <button
+      onClick={() => quickAsk("home plans")}
+      style={{
+        padding: "6px 12px",
+        borderRadius: "8px",
+        border: "none",
+        background: "#1976d2",
+        color: "white",
+        fontSize: "0.85rem",
+        cursor: "pointer"
+      }}
+    >
+      Home Plans
+    </button>
+    <button
+      onClick={() => quickAsk("enterprise plans")}
+      style={{
+        padding: "6px 12px",
+        borderRadius: "8px",
+        border: "none",
+        background: "#1976d2",
+        color: "white",
+        fontSize: "0.85rem",
+        cursor: "pointer"
+      }}
+    >
+      Enterprise Plans
+    </button>
+  </Box>
+</Box>
+<Divider />
 
-          {/* Input */}
-          <Box sx={{ display: "flex", gap: 1 }}>
+{/* Chat messages */}
+<Box
+  ref={listRef}
+  sx={{
+    flex: 1,
+    overflowY: "auto",
+    p: 2,
+    bgcolor: "background.default"
+  }}
+>
+  {messages.map((m, i) => (
+    <Message key={i} sender={m.sender} text={m.text} />
+  ))}
+  {loading && (
+    <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 1 }}>
+      <CircularProgress size={20} />
+    </Box>
+  )}
+</Box>
+
+          <Divider />
+          <Box sx={{ p: 1.5, display: "flex", gap: 1 }}>
             <TextField
-              variant="outlined"
               size="small"
               fullWidth
+              placeholder="Type your message…"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Type your question..."
-              sx={{
-                input: { color: "#fff" },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "#45a29e" },
-                  "&:hover fieldset": { borderColor: "#66fcf1" },
-                },
-              }}
+              onKeyDown={onKeyDown}
             />
-            <Button
-              variant="contained"
-              onClick={() => handleSend()}
-              sx={{ bgcolor: "#45a29e", "&:hover": { bgcolor: "#66fcf1" } }}
-            >
-              Send
-            </Button>
+            <IconButton color="primary" onClick={() => send()} aria-label="send">
+              <SendIcon />
+            </IconButton>
           </Box>
         </Box>
       </Drawer>
     </>
   );
 }
-
-export default Chatbot;
