@@ -283,6 +283,7 @@ const localAnswer = (q) => {
 
 // ---------- Gemini fallback with context ----------
 async function askGemini(userText) {
+  const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
   if (!GEMINI_API_KEY) {
     return "I couldn’t find a local answer and no Gemini API key is set.";
   }
