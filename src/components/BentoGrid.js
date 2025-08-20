@@ -49,7 +49,7 @@ function BentoGrid() {
   return (
     <Box sx={{ px: { xs: 2, md: 8 }, py: 6 }}>
       <Typography id="attacks" variant="h4" sx={{ fontWeight: 700, mb: 3, color: "primary.main" }}>
-        Common Cyber Attacks
+        Cyber Attacks
       </Typography>
       <Grid container spacing={2} sx={{ mb: 6 }}>
         {attacks.map((item, idx) => (
