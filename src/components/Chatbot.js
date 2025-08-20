@@ -245,39 +245,38 @@ async function askGemini(userText) {
   if (!GEMINI_API_KEY) {
     return "I couldn’t find a local answer and no Gemini API key is set.";
   }
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-  const prompt =
-    `You are a concise assistant for DNA Goa broadband. ` +
-    `User question: "${userText}". ` +
-    `If you don't know or can't verify online, reply: "Sorry, I couldn't find an answer." ` +
-    `Keep answers short and relevant to DNA Goa only.`;
-
-  const payload = {
-    contents: [
-      {
-        role: "user",
-        parts: [{ text: prompt }]
-      }
-    ]
-  };
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
   try {
     const res = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      headers: {
+        "x-goog-api-key": GEMINI_API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [{ text: userText }]
+          }
+        ]
+      })
     });
+
     const data = await res.json();
-    const text =
+    const reply =
       data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
       "Sorry, I couldn't find an answer.";
-    return text;
-  } catch (e) {
-    console.error("Gemini error:", e);
+
+    return reply;
+  } catch (err) {
+    console.error("Gemini API error:", err);
     return "Sorry, I couldn't find an answer.";
   }
 }
+
+
 
 // ---------- UI ----------
 function Message({ sender, text }) {
@@ -376,10 +375,7 @@ export default function Chatbot() {
       <Drawer anchor="right" open={open} onClose={() => setOpen(false)}>
         <Box sx={{ width: 380, height: "100%", display: "flex", flexDirection: "column", bgcolor: "background.default" }}>
           <Box sx={{ p: 2, bgcolor: "grey.900", color: "white" }}>
-            <Typography variant="h6" sx={{ color: "cyan" }}>Cyber Chatbot</Typography>
-            <Typography variant="body2" color="text.secondary">
-              AIis{GEMINI_API_KEY ? "ON" : "OFF"}.
-            </Typography>
+            <Typography variant="h6" sx={{ color: "cyan" }}>Cyber Chatbot {GEMINI_API_KEY ? "ON" : "OFF"}</Typography>
           </Box>
           <Divider />
           
