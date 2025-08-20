@@ -11,10 +11,10 @@ import theme from "../App.js";
 function NewsSection() {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
-
+const apiKey = process.env.REACT_APP_SERPAPI_KEY;
   useEffect(() => {
     const proxy = "https://cors-anywhere.herokuapp.com/";
-    const serpApiUrl = `${proxy}https://serpapi.com/search.json?engine=google&q=cyber+crimes&gl=in&hl=en&tbm=nws&api_key=`;
+    const serpApiUrl = `${proxy}https://serpapi.com/search.json?engine=google&q=cyber+crimes&gl=in&hl=en&tbm=nws&api_key=${apiKey}`;
 
     fetch(serpApiUrl)
       .then((res) => res.json())
