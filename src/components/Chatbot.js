@@ -373,13 +373,11 @@ export default function Chatbot() {
       )}
 
       <Drawer anchor="right" open={open} onClose={() => setOpen(false)}>
-        <Box sx={{ width: 380, height: "100%", display: "flex", flexDirection: "column", bgcolor: "background.default" }}>
+        <Box sx={{ width: 500, height: "100%", display: "flex", flexDirection: "column", bgcolor: "background.default" }}>
           <Box sx={{ p: 2, bgcolor: "grey.900", color: "white" }}>
             <Typography variant="h6" sx={{ color: "cyan" }}>Cyber Chatbot {GEMINI_API_KEY ? "ON" : "OFF"}</Typography>
           </Box>
           <Divider />
-          
-          {/* Quick tools */}
           {/* Quick tools */}
 <Box sx={{ p: 1.5, display: "flex", gap: 1, justifyContent: "center" }}>
   <Box sx={{ display: "flex", gap: 1 }}>
