@@ -109,39 +109,6 @@ function BentoGrid() {
     </Grid>
   ))}
 </Grid>
-<Typography id="tips" variant="h4" sx={{ fontWeight: 700, mb: 3, color: "secondary.main" }}>
-  Security Tips
-</Typography>
-<Grid container spacing={2}>
-  {tips.map((item, idx) => (
-    <Grid item xs={12} sm={6} md={3} key={idx}>
-      <Fade in timeout={500 + idx * 30}>
-        <Card sx={{ height: "100%", bgcolor: "background.paper", borderRadius: 3 }}>
-          <Box
-            sx={{
-              height: 180,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              overflow: "hidden",
-            }}
-          >
-            <img
-              src={item.img}
-              alt={`Tip ${idx + 1}`}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-              }}
-            />
-          </Box>
-        </Card>
-      </Fade>
-    </Grid>
-  ))}
-</Grid>
-
 
 </Box>
 
