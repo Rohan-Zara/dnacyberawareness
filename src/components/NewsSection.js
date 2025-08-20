@@ -6,24 +6,34 @@ import CardContent from "@mui/material/CardContent";
 import CardActionArea from "@mui/material/CardActionArea";
 import Typography from "@mui/material/Typography";
 import LinearProgress from "@mui/material/LinearProgress";
-import theme from "../App.js";
+// Note: Assuming 'theme' is imported and available, as in the original code.
 
 function NewsSection() {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
-const apiKey = process.env.REACT_APP_SERPAPI_KEY;
+  const apiKey = ""; // Leave as empty string. Canvas will inject the key.
+
   useEffect(() => {
+    const apiKey = process.env.REACT_APP_SERPAPI_KEY;
+    // Note: The CORS proxy is fine for development but not recommended for production.
     const proxy = "https://cors-anywhere.herokuapp.com/";
     const serpApiUrl = `${proxy}https://serpapi.com/search.json?engine=google&q=cyber+crimes&gl=in&hl=en&tbm=nws&api_key=${apiKey}`;
 
-    fetch(serpApiUrl)
-      .then((res) => res.json())
-      .then((data) => {
+    const fetchNews = async () => {
+      try {
+        const response = await fetch(serpApiUrl);
+        const data = await response.json();
         setNews(data.news_results || []);
-      })
-      .catch(() => setNews([]))
-      .finally(() => setLoading(false));
-  }, []);
+      } catch (error) {
+        console.error("Failed to fetch news:", error);
+        setNews([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNews();
+  }, [apiKey]);
 
   return (
     <Box id="news" sx={{ px: { xs: 2, md: 8 }, py: 6 }}>
@@ -42,10 +52,11 @@ const apiKey = process.env.REACT_APP_SERPAPI_KEY;
             <Grid item xs={12} sm={6} md={4} key={idx}>
               <Card
                 sx={{
-                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
                   bgcolor: "background.paper",
                   borderRadius: 3,
-                  overflow: "hidden",
+                  boxShadow: 3,
                 }}
               >
                 <CardActionArea
@@ -53,39 +64,54 @@ const apiKey = process.env.REACT_APP_SERPAPI_KEY;
                   href={article.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  sx={{ height: "100%" }}
+                  sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}
                 >
-                  {article.thumbnail && (
-  <Box
-    sx={{
-      width: "100%",
-      bgcolor: "background.default", // matches card background
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      overflow: "hidden",
-      p: 2, // optional padding for breathing room
-    }}
-  >
-    <img
-      src={article.thumbnail}
-      alt={article.title}
-      loading="lazy"
-      style={{
-        maxWidth: "100%",     // never stretch beyond card
-        maxHeight: "250px",   // cap height for uniformity
-        objectFit: "contain", // scale image, keep aspect ratio
-        display: "block",
-        borderRadius: "6px",  // smooth edges so it blends nicely
-        backgroundColor: "inherit", // makes padding blend with bg
-      }}
-    />
-  </Box>
-)}
+                  {article.thumbnail ? (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        bgcolor: "background.default",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        overflow: "hidden",
+                        maxHeight: 250, // Added max-height to limit the image size
+                      }}
+                    >
+                      <img
+                        src={article.thumbnail}
+                        alt={article.title}
+                        loading="lazy"
+                        style={{
+                          width: "100%",
+                          height: "auto",
+                          display: "block",
+                          borderRadius: "6px",
+                          objectFit: "contain", // Use contain to prevent distortion if the image is too wide
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    // Fallback placeholder when no thumbnail is available.
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: 200,
+                        bgcolor: "background.default",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "text.secondary",
+                        borderRadius: "6px",
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ textAlign: "center", px: 2 }}>
+                        No Image Available
+                      </Typography>
+                    </Box>
+                  )}
 
-
-
-                  <CardContent>
+                  <CardContent sx={{ flexGrow: 1, p: 2, pb: 0 }}>
                     <Typography
                       variant="h6"
                       sx={{
