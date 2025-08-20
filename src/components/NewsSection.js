@@ -49,7 +49,12 @@ function NewsSection() {
       ) : (
         <Grid container spacing={3}>
           {news.map((article, idx) => (
-            <Grid item xs={12} sm={6} md={4} key={idx}>
+            <Grid
+              item
+              xs={12}
+              sm={6} // Two cards side by side for sm and up
+              key={idx}
+            >
               <Card
                 sx={{
                   display: "flex",
@@ -64,18 +69,24 @@ function NewsSection() {
                   href={article.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}
+                  sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                  }}
                 >
                   {article.thumbnail ? (
                     <Box
                       sx={{
-                        width: "100%",
-                        bgcolor: "background.default",
+                        width: { xs: "100%", sm: "30%" },
+                        height: { xs: 200, sm: "auto" },
+                        // Added a gradient to the background to make it look better
+                        background:
+                          "linear-gradient(45deg, #1f2937, #374151)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         overflow: "hidden",
-                        maxHeight: 250, // Added max-height to limit the image size
+                        flexShrink: 0,
                       }}
                     >
                       <img
@@ -84,20 +95,23 @@ function NewsSection() {
                         loading="lazy"
                         style={{
                           width: "100%",
-                          height: "auto",
+                          height: "100%",
+                          objectFit: "contain", // Use 'contain' to prevent blurring
                           display: "block",
                           borderRadius: "6px",
-                          objectFit: "contain", // Use contain to prevent distortion if the image is too wide
+                          // Also adding a slight opacity to make the gradient more visible
+                          opacity: 0.8,
                         }}
                       />
                     </Box>
                   ) : (
-                    // Fallback placeholder when no thumbnail is available.
                     <Box
                       sx={{
-                        width: "100%",
-                        height: 200,
-                        bgcolor: "background.default",
+                        width: { xs: "100%", sm: "30%" },
+                        height: { xs: 200, sm: "100%" },
+                        // Added a gradient to the fallback background
+                        background:
+                          "linear-gradient(45deg, #1f2937, #374151)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -105,18 +119,17 @@ function NewsSection() {
                         borderRadius: "6px",
                       }}
                     >
-                      <Typography variant="body2" sx={{ textAlign: "center", px: 2 }}>
-                        No Image Available
+                      <Typography variant="caption" sx={{ textAlign: "center", px: 1 }}>
+                        No Image
                       </Typography>
                     </Box>
                   )}
 
-                  <CardContent sx={{ flexGrow: 1, p: 2, pb: 0 }}>
+                  <CardContent sx={{ flexGrow: 1, p: 2, pb: 0, display: "flex", flexDirection: "column" }}>
                     <Typography
                       variant="h6"
                       sx={{
                         fontWeight: 700,
-                        mb: 1,
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         display: "-webkit-box",
@@ -142,7 +155,7 @@ function NewsSection() {
                       {article.snippet}
                     </Typography>
 
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: "auto" }}>
                       {article.source?.name}
                     </Typography>
                   </CardContent>
