@@ -15,7 +15,7 @@ import Divider from "@mui/material/Divider";
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 
 // 🗂 Inline copy of your dnadata.json
-const DNADATA = {
+const dnadata = {
   dnagoa_broadband_plans: [
     { duration: "1 Month", speed: "100 Mbps", benefits: ["Data limit 500 GB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹677*" },{ label: "1 Month Plan + OTT", price: "₹889*" }], plan_name: "Goa Basic" },
     { duration: "3 Months", speed: "100 Mbps", benefits: ["Data limit 1.50 GB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹1948*" },{ label: "3 Months Plan + OTT", price: "₹2584*" }], plan_name: "Goa Basic" },
@@ -165,8 +165,8 @@ const localAnswer = (q) => {
 
   // 3. ENHANCED NLP-LIKE FAQ MATCHING
   const allFaqs = [
-    ...(DNADATA.faq_data?.faqs || []),
-    ...(DNADATA.faq_data?.common_queries || [])
+    ...(dnadata.faq_data?.faqs || []),
+    ...(dnadata.faq_data?.common_queries || [])
   ];
   
   const userWords = text.split(/\s+/).filter(word => word.length > 2);
@@ -187,23 +187,23 @@ const localAnswer = (q) => {
 
   // 4. Specific plan list buttons
   if (text === "home plans") {
-      const allHomePlans = DNADATA.dnagoa_broadband_plans || [];
+      const allHomePlans = dnadata.dnagoa_broadband_plans || [];
       return `Here are all our home broadband plans:\n` + formatPlanBlock(allHomePlans);
   }
   
   if (text === "enterprise plans") {
-      const allEnterprisePlans = DNADATA.enterprise_broadband_plans || [];
+      const allEnterprisePlans = dnadata.enterprise_broadband_plans || [];
       return `Here are all our enterprise broadband plans:\n` + formatPlanBlock(allEnterprisePlans);
   }
 
   // 5. Specific keywords
   if (text.includes("terms") || text.includes("conditions")) {
-    return "**Terms & Conditions (summary)**:\n" + DNADATA.terms_and_conditions.map((t, i) => `${i + 1}. ${t}`).join("\n");
+    return "**Terms & Conditions (summary)**:\n" + dnadata.terms_and_conditions.map((t, i) => `${i + 1}. ${t}`).join("\n");
   }
 
   if (text.includes("router")) {
-    const steps = DNADATA.faq_data.router_setup_steps || [];
-    const types = DNADATA.faq_data.router_types || [];
+    const steps = dnadata.faq_data.router_setup_steps || [];
+    const types = dnadata.faq_data.router_types || [];
     return (
       "**Router Setup & Info**\n\n**Setup Steps**:\n" +
       steps.map((s, i) => `${i + 1}. ${s}`).join("\n") +
@@ -221,13 +221,13 @@ const localAnswer = (q) => {
     let plans = [];
 
     if (isEnterprise || ['20 mbps', '30 mbps', '40 mbps', '50 mbps', '75 mbps'].includes(lc(speedWanted))) {
-        plans = (DNADATA.enterprise_broadband_plans || []).filter((p) => lc(p.speed) === lc(speedWanted));
+        plans = (dnadata.enterprise_broadband_plans || []).filter((p) => lc(p.speed) === lc(speedWanted));
         if (plans.length > 0) {
             return `Enterprise **${speedWanted}** plans:\n` + formatPlanBlock(plans);
         }
     }
     
-    plans = (DNADATA.dnagoa_broadband_plans || []).filter((p) => lc(p.speed) === lc(speedWanted));
+    plans = (dnadata.dnagoa_broadband_plans || []).filter((p) => lc(p.speed) === lc(speedWanted));
     if (plans.length > 0) {
         return `Home **${speedWanted}** plans:\n` + formatPlanBlock(plans);
     }
@@ -242,7 +242,7 @@ const localAnswer = (q) => {
       prime: "Goa Prime"
     };
     const target = nameMap[planKey];
-    const plans = (DNADATA.dnagoa_broadband_plans || []).filter((p) => lc(p.plan_name) === lc(target));
+    const plans = (dnadata.dnagoa_broadband_plans || []).filter((p) => lc(p.plan_name) === lc(target));
     if (plans.length) {
       const spds = [...new Set(plans.map((p) => p.speed))].join(", ");
       return `Here are the **${target}** plans (${spds}):\n` + formatPlanBlock(plans);
@@ -253,16 +253,16 @@ const localAnswer = (q) => {
   if (text.includes("plan") || text.includes("ott")) {
     const allSpeeds = [
         ...new Set([
-            ...(DNADATA.dnagoa_broadband_plans || []).map(p => p.speed),
-            ...(DNADATA.enterprise_broadband_plans || []).map(p => p.speed)
+            ...(dnadata.dnagoa_broadband_plans || []).map(p => p.speed),
+            ...(dnadata.enterprise_broadband_plans || []).map(p => p.speed)
         ])
     ].sort((a, b) => parseFloat(a) - parseFloat(b));
 
     const quick = allSpeeds
         .map((s) => {
             const items = [
-                ...(DNADATA.dnagoa_broadband_plans || []),
-                ...(DNADATA.enterprise_broadband_plans || [])
+                ...(dnadata.dnagoa_broadband_plans || []),
+                ...(dnadata.enterprise_broadband_plans || [])
             ].filter((p) => lc(p.speed) === lc(s));
 
             if (!items.length) return null;
@@ -295,7 +295,7 @@ async function askGemini(userText) {
 
     Here is the complete data about the company's plans, FAQs, and terms:
     \`\`\`json
-    ${JSON.stringify(DNADATA, null, 2)}
+    ${JSON.stringify(dnadata, null, 2)}
     \`\`\`
 
     In addition to this data, you are aware of the following components on our website:
