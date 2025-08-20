@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Fab from "@mui/material/Fab";
 import Tooltip from "@mui/material/Tooltip";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
@@ -14,7 +14,7 @@ import Divider from "@mui/material/Divider";
 // 🔐 Put your key in .env as REACT_APP_GEMINI_API_KEY
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 
-// 🗂 Inline copy of your dnadata.json (exactly as you shared)
+// 🗂 Inline copy of your dnadata.json
 const DNADATA = {
   dnagoa_broadband_plans: [
     { duration: "1 Month", speed: "100 Mbps", benefits: ["Data limit 500 GB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹677*" },{ label: "1 Month Plan + OTT", price: "₹889*" }], plan_name: "Goa Basic" },
@@ -111,34 +111,32 @@ const DNADATA = {
   ]
 };
 
-// ---------- helpers (safe + robust) ----------
+// ---------- helper functions ----------
 const lc = (v) => (typeof v === "string" ? v.toLowerCase() : "");
 const trim = (v) => (typeof v === "string" ? v.trim() : "");
-// --- inside localAnswer(), update normSpeed ---
 const normSpeed = (txt) => {
   const m = lc(txt).match(/(\d+(?:\.\d+)?)\s*(g|m)bps/);
   if (!m) return null;
-  const n = m[1];
+  const n = parseFloat(m[1]);
   const unit = m[2].toLowerCase() === "g" ? "Gbps" : "Mbps";
-  return unit === "Gbps" ? `${n} Gbps` : `${parseInt(n, 10)} Mbps`;
+  return unit === "Gbps" ? `${n} Gbps` : `${Math.round(n)} Mbps`;
 };
-
 
 const formatPlanBlock = (plans) => {
   if (!plans?.length) return "";
-  // group by plan_name
   const byPlan = plans.reduce((acc, p) => {
     const key = p.plan_name || "Plan";
     acc[key] = acc[key] || [];
     acc[key].push(p);
     return acc;
   }, {});
+
   let out = "";
   Object.entries(byPlan).forEach(([name, items]) => {
-    out += `\n${name}:\n`;
+    out += `\n**${name}**:\n`;
     items.forEach((p) => {
       const priceStr = (p.prices || [])
-        .map((pr) => `${pr.label}: ${pr.price}`)
+        .map((pr) => `${pr.label}: **${pr.price}**`)
         .join(", ");
       out += `• ${p.duration}: ${priceStr}\n`;
     });
@@ -149,116 +147,176 @@ const formatPlanBlock = (plans) => {
 const localAnswer = (q) => {
   const text = lc(q);
 
-  // greeting
+  // 1. Greetings
   if (/^(hi|hello|hey)\b/.test(text)) {
     return "Hi! I’m your Cybersecurity Assistant 🤖 for DNA Goa broadband. Ask me about plans, prices, OTT, enterprise packs, FAQs, router setup, or terms.";
   }
 
-  // terms & conditions
-  if (text.includes("terms") || text.includes("conditions")) {
-    return "Terms & Conditions (summary):\n" + DNADATA.terms_and_conditions.map((t, i) => `${i + 1}. ${t}`).join("\n");
+  // 2. App component awareness
+  if (text.includes("news") || text.includes("articles") || text.includes("updates")) {
+    return "Our website's **NewsSection** provides the latest updates and articles on cybersecurity and industry trends. I recommend checking it out for more information.";
+  }
+  if (text.includes("threats") || text.includes("cybersecurity") || text.includes("attacks") || text.includes("map") || text.includes("incidents")) {
+    return "The **ThreatMap** component on our site shows real-time cyberattack data, helping you visualize global cybersecurity threats.";
+  }
+  if (text.includes("products") || text.includes("services") || text.includes("features") || text.includes("bento")) {
+    return "The **BentoGrid** section showcases our key services and products, presented in a visually appealing grid format.";
   }
 
-  // router info
-  if (text.includes("router")) {
-    const steps = DNADATA.faq_data.router_setup_steps || [];
-    const types = DNADATA.faq_data.router_types || [];
-    return (
-      "Router setup:\n" +
-      steps.map((s, i) => `${i + 1}. ${s}`).join("\n") +
-      "\n\nRouter types:\n" +
-      types.map((t) => `• ${t.type}: ${t.description}`).join("\n")
-    );
-  }
-
-  // FAQ match (loose)
+  // 3. ENHANCED NLP-LIKE FAQ MATCHING
   const allFaqs = [
     ...(DNADATA.faq_data?.faqs || []),
     ...(DNADATA.faq_data?.common_queries || [])
   ];
+  
+  const userWords = text.split(/\s+/).filter(word => word.length > 2);
+  
   for (const f of allFaqs) {
     const qstr = lc(f.question || "");
     if (!qstr) continue;
-    if (text.includes(qstr) || qstr.includes(text)) {
+
+    const faqWords = qstr.split(/\s+/).filter(word => word.length > 2);
+    const matchCount = faqWords.filter(word => userWords.includes(word)).length;
+    
+    const threshold = Math.max(2, Math.floor(faqWords.length / 2));
+
+    if (matchCount >= threshold) {
       return f.answer || "";
     }
   }
 
-  // Speed-specific plans (e.g., "100 mbps", "1 gbps")
-  const speedWanted = normSpeed(text);
+  // 4. Specific plan list buttons
+  if (text === "home plans") {
+      const allHomePlans = DNADATA.dnagoa_broadband_plans || [];
+      return `Here are all our home broadband plans:\n` + formatPlanBlock(allHomePlans);
+  }
+  
+  if (text === "enterprise plans") {
+      const allEnterprisePlans = DNADATA.enterprise_broadband_plans || [];
+      return `Here are all our enterprise broadband plans:\n` + formatPlanBlock(allEnterprisePlans);
+  }
+
+  // 5. Specific keywords
+  if (text.includes("terms") || text.includes("conditions")) {
+    return "**Terms & Conditions (summary)**:\n" + DNADATA.terms_and_conditions.map((t, i) => `${i + 1}. ${t}`).join("\n");
+  }
+
+  if (text.includes("router")) {
+    const steps = DNADATA.faq_data.router_setup_steps || [];
+    const types = DNADATA.faq_data.router_types || [];
+    return (
+      "**Router Setup & Info**\n\n**Setup Steps**:\n" +
+      steps.map((s, i) => `${i + 1}. ${s}`).join("\n") +
+      "\n\n**Router Types**:\n" +
+      types.map((t) => `• **${t.type}**: ${t.description}`).join("\n")
+    );
+  }
+
+  // 6. Plan-specific queries (speed or name)
   const isEnterprise = text.includes("enterprise") || text.includes("business") || text.includes("office");
+  const speedWanted = normSpeed(text);
+  const planKey = ["basic", "standard", "premium", "ultra", "prime"].find((k) => text.includes(k));
 
   if (speedWanted) {
-    if (isEnterprise) {
-      const plans = (DNADATA.enterprise_broadband_plans || []).filter((p) => lc(p.speed) === lc(speedWanted));
-      if (plans.length) {
-        return `Enterprise ${speedWanted} plans:\n` + formatPlanBlock(plans);
-      }
+    let plans = [];
+
+    if (isEnterprise || ['20 mbps', '30 mbps', '40 mbps', '50 mbps', '75 mbps'].includes(lc(speedWanted))) {
+        plans = (DNADATA.enterprise_broadband_plans || []).filter((p) => lc(p.speed) === lc(speedWanted));
+        if (plans.length > 0) {
+            return `Enterprise **${speedWanted}** plans:\n` + formatPlanBlock(plans);
+        }
     }
-    const plans = (DNADATA.dnagoa_broadband_plans || []).filter((p) => lc(p.speed) === lc(speedWanted));
-    if (plans.length) {
-      return `${speedWanted} plans:\n` + formatPlanBlock(plans);
+    
+    plans = (DNADATA.dnagoa_broadband_plans || []).filter((p) => lc(p.speed) === lc(speedWanted));
+    if (plans.length > 0) {
+        return `Home **${speedWanted}** plans:\n` + formatPlanBlock(plans);
     }
   }
 
-  // By plan name keywords (basic / standard / premium / ultra / prime)
-  const planKey = ["basic", "standard", "premium", "ultra", "prime"].find((k) => text.includes(k));
   if (planKey) {
     const nameMap = {
       basic: "Goa Basic",
       standard: "Goa Standard",
       premium: "Goa Premium",
       ultra: "Goa Ultra",
-      prime: "Goa Prime",
-      enterprise_broadband_plans:"20 Mbps, 30 Mbps, 40 Mbps, 50 Mbps, 75 Mbps, 100 Mbps"
+      prime: "Goa Prime"
     };
     const target = nameMap[planKey];
     const plans = (DNADATA.dnagoa_broadband_plans || []).filter((p) => lc(p.plan_name) === lc(target));
     if (plans.length) {
       const spds = [...new Set(plans.map((p) => p.speed))].join(", ");
-      return `${target} (${spds})\n` + formatPlanBlock(plans);
+      return `Here are the **${target}** plans (${spds}):\n` + formatPlanBlock(plans);
     }
   }
 
-  // Generic "plans" query
-  if (text.includes("plan")) {
-    const speeds = ["20 Mbps", "75 Mbps","100 Mbps", "150 Mbps", "300 Mbps", "500 Mbps", "1 Gbps"];
-    const quick = speeds
-      .map((s) => {
-        const items = (DNADATA.dnagoa_broadband_plans || []).filter((p) => lc(p.speed) === lc(s));
-        if (!items.length) return null;
-        const first = items[0];
-        const priceExample = first?.prices?.[0]?.price ? ` (from ${first.prices[0].price})` : "";
-        return `• ${s}${priceExample}`;
-      })
-      .filter(Boolean)
-      .join("\n");
-    return "Popular broadband speeds:\n" + quick + "\n\nAsk me, e.g., “100 mbps plans” or “Goa Premium”.";
+  // 7. Generic "plans" or "OTT" query (this is now the lowest priority)
+  if (text.includes("plan") || text.includes("ott")) {
+    const allSpeeds = [
+        ...new Set([
+            ...(DNADATA.dnagoa_broadband_plans || []).map(p => p.speed),
+            ...(DNADATA.enterprise_broadband_plans || []).map(p => p.speed)
+        ])
+    ].sort((a, b) => parseFloat(a) - parseFloat(b));
+
+    const quick = allSpeeds
+        .map((s) => {
+            const items = [
+                ...(DNADATA.dnagoa_broadband_plans || []),
+                ...(DNADATA.enterprise_broadband_plans || [])
+            ].filter((p) => lc(p.speed) === lc(s));
+
+            if (!items.length) return null;
+
+            const first = items[0];
+            const priceExample = first?.prices?.[0]?.price ? ` (from ${first.prices[0].price})` : "";
+            return `• ${s}${priceExample}`;
+        })
+        .filter(Boolean)
+        .join("\n");
+
+    return "Popular broadband speeds:\n" + quick + "\n\nAsk me, e.g., '100 mbps plans' or 'Goa Premium'.";
   }
 
   // No local match
   return null;
 };
 
-// ---------- Gemini fallback ----------
+// ---------- Gemini fallback with context ----------
 async function askGemini(userText) {
   if (!GEMINI_API_KEY) {
     return "I couldn’t find a local answer and no Gemini API key is set.";
   }
 
-  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+  
+  const prompt = `
+    You are a helpful cybersecurity assistant for DNA Goa broadband. Your purpose is to provide accurate and helpful information based on the provided data.
+
+    Here is the complete data about the company's plans, FAQs, and terms:
+    \`\`\`json
+    ${JSON.stringify(DNADATA, null, 2)}
+    \`\`\`
+
+    In addition to this data, you are aware of the following components on our website:
+    - **BentoGrid**: This section showcases our key services and products.
+    - **NewsSection**: This component provides the latest news and articles on cybersecurity.
+    - **ThreatMap**: This section visualizes real-time global cybersecurity threats.
+
+    Based on the provided data and your knowledge of the app components, answer the user question. If the answer is not in the data, try to be as helpful as possible without inventing information. For example, if the user asks about general cybersecurity, you can provide a high-level, helpful answer.
+
+    User question: "${userText}"
+  `;
 
   try {
     const res = await fetch(url, {
       method: "POST",
       headers: {
-        "x-goog-api-key": GEMINI_API_KEY,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         contents: [
           {
-            parts: [{ text: userText }]
+            parts: [{ text: prompt }]
           }
         ]
       })
@@ -267,18 +325,16 @@ async function askGemini(userText) {
     const data = await res.json();
     const reply =
       data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
-      "Sorry, I couldn't find an answer.";
+      "Sorry, I couldn't find an answer. Please try rephrasing your question.";
 
     return reply;
   } catch (err) {
     console.error("Gemini API error:", err);
-    return "Sorry, I couldn't find an answer.";
+    return "I’m sorry, but I’m having trouble connecting right now. Please try again later.";
   }
 }
 
-
-
-// ---------- UI ----------
+// ---------- UI Components (with width change) ----------
 function Message({ sender, text }) {
   const isUser = sender === "user";
   return (
@@ -299,7 +355,7 @@ function Message({ sender, text }) {
           color: isUser ? "primary.contrastText" : "text.primary",
           whiteSpace: "pre-wrap",
           wordBreak: "break-word",
-          fontSize: 14
+          fontSize: 14,
         }}
       >
         {text}
@@ -308,19 +364,19 @@ function Message({ sender, text }) {
   );
 }
 
-// --- in Chatbot component, hide FAB when drawer open + add Quick Tools ---
+// --- Chatbot component with quick tools and width set to 500 ---
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { sender: "bot", text: "Cyber Chatbot\nHi! I’m your Cybersecurity Assistant 🤖. Ask me anything about DNA Goa plans, OTT, enterprise, FAQs, or router help." }
+    { sender: "bot", text: "Cyber Chatbot\nHi! I’m your Cybersecurity Assistant 🤖 for DNA Goa broadband. Ask me anything about our plans, or about the news, threats, and services on our site." }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const listRef = useRef(null);
 
-  // helper to trigger quick queries
   const quickAsk = (q) => {
-    setInput(q);
+    setOpen(true);
+    setLoading(true);
     setTimeout(() => send(q), 50);
   };
 
@@ -331,7 +387,6 @@ export default function Chatbot() {
     setInput("");
     setLoading(true);
 
-    // local
     const local = localAnswer(query);
     if (local) {
       setMessages((m) => [...m, { sender: "bot", text: local }]);
@@ -339,7 +394,6 @@ export default function Chatbot() {
       return;
     }
 
-    // fallback
     const reply = await askGemini(query);
     setMessages((m) => [...m, { sender: "bot", text: reply }]);
     setLoading(false);
@@ -379,59 +433,59 @@ export default function Chatbot() {
           </Box>
           <Divider />
           {/* Quick tools */}
-<Box sx={{ p: 1.5, display: "flex", gap: 1, justifyContent: "center" }}>
-  <Box sx={{ display: "flex", gap: 1 }}>
-    <button
-      onClick={() => quickAsk("home plans")}
-      style={{
-        padding: "6px 12px",
-        borderRadius: "8px",
-        border: "none",
-        background: "#1976d2",
-        color: "white",
-        fontSize: "0.85rem",
-        cursor: "pointer"
-      }}
-    >
-      Home Plans
-    </button>
-    <button
-      onClick={() => quickAsk("enterprise plans")}
-      style={{
-        padding: "6px 12px",
-        borderRadius: "8px",
-        border: "none",
-        background: "#1976d2",
-        color: "white",
-        fontSize: "0.85rem",
-        cursor: "pointer"
-      }}
-    >
-      Enterprise Plans
-    </button>
-  </Box>
-</Box>
-<Divider />
+          <Box sx={{ p: 1.5, display: "flex", gap: 1, justifyContent: "center" }}>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <button
+                onClick={() => quickAsk("home plans")}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "8px",
+                  border: "none",
+                  background: "#1976d2",
+                  color: "white",
+                  fontSize: "0.85rem",
+                  cursor: "pointer"
+                }}
+              >
+                Home Plans
+              </button>
+              <button
+                onClick={() => quickAsk("enterprise plans")}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "8px",
+                  border: "none",
+                  background: "#1976d2",
+                  color: "white",
+                  fontSize: "0.85rem",
+                  cursor: "pointer"
+                }}
+              >
+                Enterprise Plans
+              </button>
+            </Box>
+          </Box>
+          <Divider />
 
-{/* Chat messages */}
-<Box
-  ref={listRef}
-  sx={{
-    flex: 1,
-    overflowY: "auto",
-    p: 2,
-    bgcolor: "background.default"
-  }}
->
-  {messages.map((m, i) => (
-    <Message key={i} sender={m.sender} text={m.text} />
-  ))}
-  {loading && (
-    <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 1 }}>
-      <CircularProgress size={20} />
-    </Box>
-  )}
-</Box>
+          {/* Chat messages */}
+          <Box
+            ref={listRef}
+            sx={{
+              flex: 1,
+              overflowY: "auto",
+              p: 2,
+              bgcolor: "background.default"
+            }}
+          >
+            {messages.map((m, i) => (
+              <Message key={i} sender={m.sender} text={m.text} />
+            ))}
+            {loading && (
+              <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 1 }}>
+                <CircularProgress size={20} />
+              </Box>
+            )}
+          </Box>
 
           <Divider />
           <Box sx={{ p: 1.5, display: "flex", gap: 1 }}>
