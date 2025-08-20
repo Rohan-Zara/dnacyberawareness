@@ -1,4 +1,3 @@
-// src/components/Chatbot.js
 import React, { useState, useRef, useEffect } from "react";
 import Fab from "@mui/material/Fab";
 import Tooltip from "@mui/material/Tooltip";
@@ -874,75 +873,82 @@ function Chatbot() {
   };
 
   // --- Search local data ---
-  const searchLocalData = (query) => {
-    let bestMatch = null;
-    let bestScore = 0;
-    const sections = [];
+  // --- smart search for dnadata ---
+const searchLocalData = (query) => {
+  if (!dnadata) return null;
+  const lowerQ = query.toLowerCase();
 
-    if (dnadata.dnagoa_broadband_plans) {
-      sections.push(
-        ...dnadata.dnagoa_broadband_plans.map((plan) => ({
-          title: `${plan.plan_name} - ${plan.speed} - ${plan.duration}`,
-          desc:
-            (plan.benefits || []).join(", ") +
-            " | " +
-            (plan.prices || [])
-              .map((p) => `${p.label}: ${p.price}`)
-              .join(", "),
-        }))
-      );
+  // 🎯 Shortcut matching
+  if (lowerQ.includes("home") || lowerQ.includes("broadband") || lowerQ.includes("goa plan")) {
+    return dnadata.dnagoa_broadband_plans
+      .map((p) =>
+        `📶 ${p.plan_name} (${p.duration}) - ${p.speed}\n💡 ${p.benefits.join(
+          ", "
+        )}\n💰 ${p.prices.map((pr) => `${pr.label}: ${pr.price}`).join(" | ")}`
+      )
+      .join("\n\n");
+  }
+
+  if (lowerQ.includes("enterprise")) {
+    return dnadata.enterprise_broadband_plans
+      .map(
+        (p) =>
+          `🏢 ${p.plan_name} (${p.duration}) - ${p.speed}\n💰 ${p.prices
+            .map((pr) => `${pr.label}: ${pr.price}`)
+            .join(" | ")}`
+      )
+      .join("\n\n");
+  }
+
+  if (lowerQ.includes("faq") || lowerQ.includes("question")) {
+    return dnadata.faq_data.faqs
+      .map((f) => `❓ ${f.question}\n➡️ ${f.answer}`)
+      .join("\n\n");
+  }
+
+  if (lowerQ.includes("router setup")) {
+    return dnadata.faq_data.router_setup_steps
+      .map((s, i) => `${i + 1}. ${s}`)
+      .join("\n");
+  }
+
+  if (lowerQ.includes("router type")) {
+    return dnadata.faq_data.router_types
+      .map((r) => `📡 ${r.type}: ${r.description}`)
+      .join("\n\n");
+  }
+
+  if (lowerQ.includes("terms")) {
+    return dnadata.terms_and_conditions.map((t, i) => `${i + 1}. ${t}`).join("\n\n");
+  }
+
+  // 🔍 Fuzzy NLP search across FAQs + common queries
+  const sections = [];
+  dnadata.faq_data.faqs.forEach((f) =>
+    sections.push({ title: f.question, desc: f.answer })
+  );
+  dnadata.faq_data.common_queries.forEach((f) =>
+    sections.push({ title: f.question, desc: f.answer })
+  );
+
+  let bestMatch = null;
+  let bestScore = 0;
+  sections.forEach((item) => {
+    const score =
+      textSimilarity(query, item.title) + textSimilarity(query, item.desc);
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = item;
     }
+  });
 
-    if (dnadata.enterprise_broadband_plans) {
-      sections.push(
-        ...dnadata.enterprise_broadband_plans.map((plan) => ({
-          title: `${plan.plan_name} - ${plan.speed} - ${plan.duration}`,
-          desc: (plan.prices || [])
-            .map((p) => `${p.label}: ${p.price}`)
-            .join(", "),
-        }))
-      );
-    }
+  if (bestScore > 0.2 && bestMatch) {
+    return `❓ ${bestMatch.title}\n➡️ ${bestMatch.desc}`;
+  }
 
-    if (dnadata.faq_data?.faq) {
-      sections.push(
-        ...dnadata.faq_data.faq.map((f) => ({
-          title: f.question,
-          desc: f.answer,
-        }))
-      );
-    }
+  return null; // nothing found → Gemini fallback
+};
 
-    if (dnadata.faq_data?.common_queries) {
-      sections.push(
-        ...dnadata.faq_data.common_queries.map((f) => ({
-          title: f.question,
-          desc: f.answer,
-        }))
-      );
-    }
-
-    if (dnadata.terms_and_conditions) {
-      dnadata.terms_and_conditions.forEach((t, i) =>
-        sections.push({ title: `T&C ${i + 1}`, desc: t })
-      );
-    }
-
-    sections.forEach((item) => {
-      const score =
-        textSimilarity(query, item.title || "") +
-        textSimilarity(query, item.desc || "");
-      if (score > bestScore) {
-        bestScore = score;
-        bestMatch = item;
-      }
-    });
-
-    if (bestScore > 0.2 && bestMatch) {
-      return `${bestMatch.title}: ${bestMatch.desc}`;
-    }
-    return null;
-  };
 
   // --- Gemini API ---
   const callGeminiAPI = async (query) => {
@@ -999,10 +1005,10 @@ function Chatbot() {
             display: "flex",
             flexDirection: "column",
             height: "100%",
-            bgcolor: "#0b0c10",
+            bgcolor: "background.default",
           }}
         >
-          <Typography variant="h6" sx={{ mb: 2, color: "cyan" }}>
+          <Typography variant="h6" sx={{ mb: 2, color: "" }}>
             DNABOT
           </Typography>
 
@@ -1013,7 +1019,7 @@ function Chatbot() {
             sx={{
               flex: 1,
               overflowY: "auto",
-              bgcolor: "#1f2833",
+              bgcolor: "background.deafult",
               borderRadius: 2,
               p: 2,
               mb: 1.5,
