@@ -7,6 +7,7 @@ import BentoGrid from "./components/BentoGrid";
 import NewsSection from "./components/NewsSection";
 import ThreatMap from "./components/ThreatMap";
 import Chatbot from "./components/Chatbot";
+import Footer from "./components/Footer";
 
 const theme = createTheme({
   palette: {
@@ -28,9 +29,10 @@ function App() {
         <Navbar />
         <Hero />
         <BentoGrid />
-        <NewsSection />
         <ThreatMap />
+        <NewsSection />
         <Chatbot />
+        <Footer />
       </Box>
     </ThemeProvider>
   );

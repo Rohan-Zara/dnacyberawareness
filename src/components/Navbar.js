@@ -10,7 +10,7 @@ function Navbar() {
     <AppBar position="sticky" color="primary" elevation={4}>
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700 }}>
-          DNA Cyber Threatscape
+          DNA GOA
         </Typography>
         <Box>
           <Button color="inherit" component="a" href="#hero">Home</Button>

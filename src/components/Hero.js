@@ -12,7 +12,7 @@ function Hero() {
           py: { xs: 8, md: 12 },
           textAlign: "center",
           bgcolor: "background.paper",
-          background: "linear-gradient(120deg, #1976d2 60%, #ff9800 100%)",
+          background: "linear-gradient(150deg, #1976d2 60%, #ff9800 100%)",
           color: "#fff",
         }}
       >
