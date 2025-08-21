@@ -117,7 +117,7 @@ function Hero() {
   return (
     <Fade in timeout={900}>
       <AnimatedBox
-        id="hero"
+        id="home"
         sx={{
           py: { xs: 8, md: 12 },
           textAlign: "center",
