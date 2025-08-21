@@ -5,6 +5,8 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import BentoGrid from "./components/BentoGrid";
 import NewsSection from "./components/NewsSection";
+import PasswordChecker from "./components/PasswordChecker";
+import SMSDetector from "./components/SMSDetector";
 import ThreatMap from "./components/ThreatMap";
 import Chatbot from "./components/Chatbot";
 import Footer from "./components/Footer";
@@ -73,6 +75,8 @@ function App() {
         <Navbar />
         <Hero />
         <BentoGrid />
+        <PasswordChecker />
+        <SMSDetector />
         <ThreatMap />
         <NewsSection />
         <Chatbot />
