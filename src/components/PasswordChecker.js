@@ -15,7 +15,7 @@ import {
 import { keyframes } from "@mui/system";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import KeyIcon from "@mui/icons-material/Key";  // Floating icon
+import KeyIcon from "@mui/icons-material/Key";  
 import CloseIcon from "@mui/icons-material/Close";
 
 const glow = keyframes`
@@ -56,7 +56,9 @@ const StrengthBar = styled(LinearProgress)(({ strength }) => ({
 
 const SectionHeader = styled(Typography)({
   position: "relative",
-  display: "inline-block",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
   marginBottom: "1.5rem",
   paddingBottom: "0.5rem",
   "&::after": {
@@ -118,138 +120,150 @@ function PasswordChecker() {
 
   return (
     <>
-      {/* Floating Button — sits just ABOVE SMS Detector icon */}
-      <Fab
-  color="secondary"
-  sx={{
-    position: "fixed",
-    bottom: 160, 
-    right: 24,
-    zIndex: 2000,
-    backgroundColor: "secondary.main",
-    "&:hover": { backgroundColor: "primary" },
-  }}
-  onClick={() => setOpen(!open)}
->
-  {open ? <CloseIcon /> : <KeyIcon />}   {/* 👈 Replaced SecurityIcon with KeyIcon */}
-</Fab>
+      {/* Floating Button — only shows when closed */}
+      {!open && (
+        <Fab
+          color="secondary"
+          sx={{
+            position: "fixed",
+            bottom: 160, 
+            right: 24,
+            zIndex: 2000,
+            backgroundColor: "secondary.main",
+            "&:hover": { backgroundColor: "primary" },
+          }}
+          onClick={() => setOpen(true)}
+        >
+          <KeyIcon />
+        </Fab>
+      )}
 
       {/* Floating Widget */}
-      {open && (
-        <Fade in={open}>
-          <Box
-            sx={{
-              position: "fixed",
-              bottom: 230, // 👈 opens ABOVE its button
-              right: 24,
-              zIndex: 1500,
-            }}
-          >
-            <AnimatedPaper elevation={0}>
-              <SectionHeader variant="h6" sx={{ fontWeight: 800, color: "primary.main" }}>
-                Password Strength Checker
-              </SectionHeader>
+      <Fade in={open} mountOnEnter unmountOnExit>
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 90,
+            right: 24,
+            zIndex: 1500,
+          }}
+        >
+          <AnimatedPaper elevation={0}>
+         <SectionHeader variant="h6" sx={{ fontWeight: 800, color: "primary.main", textAlign: "center", position: "relative" }}>
+  Password Strength Checker
+  <IconButton
+    size="small"
+    onClick={() => setOpen(false)}
+    sx={{
+      position: "absolute",
+      right: 0,
+      top: "50%",
+      transform: "translateY(-50%)",
+      color: "text.secondary",
+    }}
+  >
+    <CloseIcon />
+  </IconButton>
+</SectionHeader>
 
-              {/* Input */}
-              <TextField
-                fullWidth
-                type={showPassword ? "text" : "password"}
-                label="Enter your password"
-                value={password}
-                onChange={handlePasswordChange}
-                variant="outlined"
-                sx={{
-                  mb: 3,
-                  "& .MuiOutlinedInput-root": {
-                    color: "white",
-                    "& fieldset": {
-                      borderColor: "rgba(108, 92, 231, 0.3)",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "rgba(108, 92, 231, 0.5)",
-                    },
+            {/* Input */}
+            <TextField
+              fullWidth
+              type={showPassword ? "text" : "password"}
+              label="Enter your password"
+              value={password}
+              onChange={handlePasswordChange}
+              variant="outlined"
+              sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": {
+                    borderColor: "rgba(108, 92, 231, 0.3)",
                   },
-                }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                        sx={{
-                          color: "#00cec9",
-                          "&:hover": {
-                            color: "#6c5ce7",
-                            textShadow: "0 0 8px rgba(108, 92, 231, 0.8)",
-                          },
-                        }}
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
+                  "&:hover fieldset": {
+                    borderColor: "rgba(108, 92, 231, 0.5)",
+                  },
+                },
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                      sx={{
+                        color: "#00cec9",
+                        "&:hover": {
+                          color: "#6c5ce7",
+                          textShadow: "0 0 8px rgba(108, 92, 231, 0.8)",
+                        },
+                      }}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-              {/* Strength Indicator */}
-              <Box sx={{ mb: 3 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Strength: {getStrengthLabel()}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {Math.round(getStrengthValue())}%
-                  </Typography>
-                </Box>
-                <StrengthBar variant="determinate" value={getStrengthValue()} strength={getStrengthKey()} />
+            {/* Strength Indicator */}
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Strength: {getStrengthLabel()}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {Math.round(getStrengthValue())}%
+                </Typography>
               </Box>
+              <StrengthBar variant="determinate" value={getStrengthValue()} strength={getStrengthKey()} />
+            </Box>
 
-              {/* Suggestions */}
-              {strength.feedback.length > 0 && (
-                <Box>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                    Suggestions:
-                  </Typography>
-                  <Box component="ul" sx={{ pl: 2, color: "text.secondary" }}>
-                    {strength.feedback.map((item, index) => (
-                      <li key={index}>
-                        <Typography variant="body2">{item}</Typography>
-                      </li>
-                    ))}
-                  </Box>
+            {/* Suggestions */}
+            {strength.feedback.length > 0 && (
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                  Suggestions:
+                </Typography>
+                <Box component="ul" sx={{ pl: 2, color: "text.secondary" }}>
+                  {strength.feedback.map((item, index) => (
+                    <li key={index}>
+                      <Typography variant="body2">{item}</Typography>
+                    </li>
+                  ))}
                 </Box>
-              )}
+              </Box>
+            )}
 
-              {/* Success Message */}
-              {strength.score >= 4 && (
-                <Box
+            {/* Success Message */}
+            {strength.score >= 4 && (
+              <Box
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  bgcolor: "rgba(46, 213, 115, 0.1)",
+                  borderRadius: 2,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  variant="body2"
                   sx={{
-                    mt: 2,
-                    p: 2,
-                    bgcolor: "rgba(46, 213, 115, 0.1)",
-                    borderRadius: 2,
-                    textAlign: "center",
+                    color: strength.score === 5 ? "#00cec9" : "#2ed573",
+                    fontWeight: 600,
+                    textShadow: strength.score === 5 ? "0 0 10px rgba(0,206,201,0.8)" : "none",
                   }}
                 >
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: strength.score === 5 ? "#00cec9" : "#2ed573",
-                      fontWeight: 600,
-                      textShadow: strength.score === 5 ? "0 0 10px rgba(0,206,201,0.8)" : "none",
-                    }}
-                  >
-                    ✓ {strength.score === 5 ? "Excellent! Very strong" : "Great! Secure password"}
-                  </Typography>
-                </Box>
-              )}
-            </AnimatedPaper>
-          </Box>
-        </Fade>
-      )}
+                  ✓ {strength.score === 5 ? "Excellent! Very strong" : "Great! Secure password"}
+                </Typography>
+              </Box>
+            )}
+          </AnimatedPaper>
+        </Box>
+      </Fade>
     </>
   );
 }
 
 export default PasswordChecker;
-
