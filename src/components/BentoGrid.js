@@ -287,7 +287,7 @@ function BentoGrid() {
         ))}
       </Grid>
 
-      {/* Tips Section */}
+       {/* Tips Section */}
       <CenteredSection>
         <SectionHeader id="tips" variant="h3" sx={{ fontWeight: 800, color: "secondary.main" }}>
           Security Tips

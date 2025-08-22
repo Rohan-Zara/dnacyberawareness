@@ -75,8 +75,6 @@ function App() {
         <Navbar />
         <Hero />
         <BentoGrid />
-        <PasswordChecker />
-        <SMSDetector />
         <ThreatMap />
         <NewsSection />
         <Chatbot />
