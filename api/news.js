@@ -2,7 +2,7 @@
 const { getJson } = require("serpapi");
 
 export default async function handler(req, res) {
-  const SerpApiKey = process.env.REACT_APP_SERPAPI_KEY;
+  const SerpApiKey = process.env.SERPAPI_KEY;
 
   if (!SerpApiKey) {
     res.status(500).json({ error: "SerpApi key not configured." });
