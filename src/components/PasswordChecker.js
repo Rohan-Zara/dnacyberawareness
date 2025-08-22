@@ -149,16 +149,22 @@ function PasswordChecker() {
           }}
         >
           <AnimatedPaper elevation={0}>
-            <SectionHeader variant="h6" sx={{ fontWeight: 800, color: "primary.main" }}>
-              Password Strength Checker
-              <IconButton
-                size="small"
-                onClick={() => setOpen(false)}
-                sx={{ color: "text.secondary", ml: 1 }}
-              >
-                <CloseIcon />
-              </IconButton>
-            </SectionHeader>
+         <SectionHeader variant="h6" sx={{ fontWeight: 800, color: "primary.main", textAlign: "center", position: "relative" }}>
+  Password Strength Checker
+  <IconButton
+    size="small"
+    onClick={() => setOpen(false)}
+    sx={{
+      position: "absolute",
+      right: 0,
+      top: "50%",
+      transform: "translateY(-50%)",
+      color: "text.secondary",
+    }}
+  >
+    <CloseIcon />
+  </IconButton>
+</SectionHeader>
 
             {/* Input */}
             <TextField

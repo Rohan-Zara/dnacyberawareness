@@ -193,18 +193,39 @@ const SMSDetector = () => {
         }}
       >
         {/* Header with Close Button */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-          <Box>
-            <Typography variant="h4" fontWeight="bold" color="secondary.main">
-              SMS Fraud Detector
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Protect yourself from SMS scams with AI-powered detection
-            </Typography>
-          </Box>
-          <IconButton onClick={() => setOpen(false)}>
+        <Box sx={{ position: "relative", mb: 3 }}>
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            color="secondary.main"
+            sx={{
+              textAlign: "center",
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "100%",
+            }}
+          >
+            SMS Fraud Detector
+          </Typography>
+          <IconButton
+            onClick={() => setOpen(false)}
+            sx={{
+              position: "absolute",
+              right: 0,
+              top: "50%",
+              transform: "translateY(-50%)",
+            }}
+          >
             <CloseIcon />
           </IconButton>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mt: 6, textAlign: "center" }}
+          >
+            Protect yourself from SMS scams with AI-powered detection
+          </Typography>
         </Box>
 
         {/* Input */}
