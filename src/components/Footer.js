@@ -147,28 +147,7 @@ function Footer() {
       
       {/* Main footer content */}
       <Box position="relative" zIndex={1}>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mb: 2 }}>
-          <SecurityIcon sx={{ 
-            mr: 1, 
-            color: "primary.main",
-            fontSize: 32,
-            animation: `${float} 3s ease-in-out infinite` 
-          }} />
-          <Typography 
-            variant="h5" 
-            sx={{ 
-              fontWeight: 800,
-              background: "linear-gradient(45deg, #6c5ce7 30%, #00cec9 90%)",
-              backgroundClip: "text",
-              textFillColor: "transparent",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              animation: `${glow} 3s ease-in-out infinite`
-            }}
-          >
-            Cybersecurity Awareness
-          </Typography>
-        </Box>
+        
 
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mb: 2 }}>
           <LocationOnIcon sx={{ fontSize: 16, mr: 0.5, color: "text.secondary" }} />

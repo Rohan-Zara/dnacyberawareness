@@ -1,20 +1,22 @@
-import React, { useRef, useState, useEffect } from "react";
-import Fab from "@mui/material/Fab";
-import Tooltip from "@mui/material/Tooltip";
+// src/components/Chatbot.js
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Drawer,
+  Box,
+  Typography,
+  Divider,
+  TextField,
+  IconButton,
+  Tooltip,
+  Fab,
+  CircularProgress,
+  Card,
+  CardContent,
+} from "@mui/material";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
-import Drawer from "@mui/material/Drawer";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import IconButton from "@mui/material/IconButton";
 import SendIcon from "@mui/icons-material/Send";
-import CircularProgress from "@mui/material/CircularProgress";
-import Divider from "@mui/material/Divider";
 
-// 🔐 Put your key in .env as REACT_APP_GEMINI_API_KEY
-const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
-
-// 🗂 Inline copy of your dnadata.json
+// ✅ All your broadband, FAQ, and terms data
 const dnadata = {
   dnagoa_broadband_plans: [
     { duration: "1 Month", speed: "100 Mbps", benefits: ["Data limit 500 GB","Post FUP Upto 100 MBPS","Free 20 OTT's and 300 + TV channels*only for new subscribers"], prices: [{ label: "Normal Plan", price: "₹677*" },{ label: "1 Month Plan + OTT", price: "₹889*" }], plan_name: "Goa Basic" },
@@ -111,292 +113,120 @@ const dnadata = {
   ]
 };
 
-// ---------- helper functions ----------
-const lc = (v) => (typeof v === "string" ? v.toLowerCase() : "");
-const trim = (v) => (typeof v === "string" ? v.trim() : "");
-const normSpeed = (txt) => {
-  const m = lc(txt).match(/(\d+(?:\.\d+)?)\s*(g|m)bps/);
-  if (!m) return null;
-  const n = parseFloat(m[1]);
-  const unit = m[2].toLowerCase() === "g" ? "Gbps" : "Mbps";
-  return unit === "Gbps" ? `${n} Gbps` : `${Math.round(n)} Mbps`;
-};
+// Async Gemini API function (matches your given structure)
+const askGemini = async (userText) => {
+        // The API key will be handled by the Canvas environment automatically.
+        // We leave it as a blank string as a placeholder.
+        const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
+        
+        // The correct Gemini API endpoint for gemini-2.5-flash-preview-05-20
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
-const formatPlanBlock = (plans) => {
-  if (!plans?.length) return "";
-  const byPlan = plans.reduce((acc, p) => {
-    const key = p.plan_name || "Plan";
-    acc[key] = acc[key] || [];
-    acc[key].push(p);
-    return acc;
-  }, {});
+        // Construct the prompt with the user's question and the provided context
+        const prompt = `
+            You are a helpful cybersecurity assistant for DNA Goa broadband. Your purpose is to provide accurate and helpful information based on the provided data.
+            
+            Here is the complete data about the company's plans, FAQs, and terms:
+            \`\`\`json
+            ${JSON.stringify(dnadata, null, 2)}
+            \`\`\`
+            
+            In addition to this data, you are aware of the following components on our website:
+            - *BentoGrid*: This section showcases our key services and products.
+            - *NewsSection*: This component provides the latest news and articles on cybersecurity.
+            - *ThreatMap*: This section visualizes real-time global cybersecurity threats.
+            
+            Based on the provided data and your knowledge of the app components, answer the user question. If the answer is not in the data, try to be as helpful as possible without inventing information. For example, if the user asks about general cybersecurity, you can provide a high-level, helpful answer.
+            
+            User question: "${userText}"
+        `;
 
-  let out = "";
-  Object.entries(byPlan).forEach(([name, items]) => {
-    out += `\n**${name}**:\n`;
-    items.forEach((p) => {
-      const priceStr = (p.prices || [])
-        .map((pr) => `${pr.label}: **${pr.price}**`)
-        .join(", ");
-      out += `• ${p.duration}: ${priceStr}\n`;
-    });
-  });
-  return out.trim();
-};
+        try {
+            const res = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            parts: [{ text: prompt }]
+                        }
+                    ]
+                })
+            });
 
-const localAnswer = (q) => {
-  const text = lc(q);
+            // Check if the response is successful
+            if (!res.ok) {
+                // Throw an error if the response status is not OK (e.g., 400, 500)
+                const errorData = await res.json();
+                throw new Error(errorData.error.message || `API error with status: ${res.status}`);
+            }
 
-  // 1. Greetings
-  if (/^(hi|hello|hey)\b/.test(text)) {
-    return "Hi! I’m your Cybersecurity Assistant 🤖 for DNA Goa broadband. Ask me about plans, prices, OTT, enterprise packs, FAQs, router setup, or terms.";
-  }
+            const data = await res.json();
+            
+            // Correctly parse the response to get the text content.
+            // The text is an item inside the 'parts' array.
+            const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+                "Sorry, I couldn't find an answer. Please try rephrasing your question.";
 
-  // 2. App component awareness
-  if (text.includes("news") || text.includes("articles") || text.includes("updates")) {
-    return "Our website's **NewsSection** provides the latest updates and articles on cybersecurity and industry trends. I recommend checking it out for more information.";
-  }
-  if (text.includes("threats") || text.includes("cybersecurity") || text.includes("attacks") || text.includes("map") || text.includes("incidents")) {
-    return "The **ThreatMap** component on our site shows real-time cyberattack data, helping you visualize global cybersecurity threats.";
-  }
-  if (text.includes("products") || text.includes("services") || text.includes("features") || text.includes("bento")) {
-    return "The **BentoGrid** section showcases our key services and products, presented in a visually appealing grid format.";
-  }
-
-  // 3. ENHANCED NLP-LIKE FAQ MATCHING
-  const allFaqs = [
-    ...(dnadata.faq_data?.faqs || []),
-    ...(dnadata.faq_data?.common_queries || [])
-  ];
-  
-  const userWords = text.split(/\s+/).filter(word => word.length > 2);
-  
-  for (const f of allFaqs) {
-    const qstr = lc(f.question || "");
-    if (!qstr) continue;
-
-    const faqWords = qstr.split(/\s+/).filter(word => word.length > 2);
-    const matchCount = faqWords.filter(word => userWords.includes(word)).length;
-    
-    const threshold = Math.max(2, Math.floor(faqWords.length / 2));
-
-    if (matchCount >= threshold) {
-      return f.answer || "";
-    }
-  }
-
-  // 4. Specific plan list buttons
-  if (text === "home plans") {
-      const allHomePlans = dnadata.dnagoa_broadband_plans || [];
-      return `Here are all our home broadband plans:\n` + formatPlanBlock(allHomePlans);
-  }
-  
-  if (text === "enterprise plans") {
-      const allEnterprisePlans = dnadata.enterprise_broadband_plans || [];
-      return `Here are all our enterprise broadband plans:\n` + formatPlanBlock(allEnterprisePlans);
-  }
-
-  // 5. Specific keywords
-  if (text.includes("terms") || text.includes("conditions")) {
-    return "**Terms & Conditions (summary)**:\n" + dnadata.terms_and_conditions.map((t, i) => `${i + 1}. ${t}`).join("\n");
-  }
-
-  if (text.includes("router")) {
-    const steps = dnadata.faq_data.router_setup_steps || [];
-    const types = dnadata.faq_data.router_types || [];
-    return (
-      "**Router Setup & Info**\n\n**Setup Steps**:\n" +
-      steps.map((s, i) => `${i + 1}. ${s}`).join("\n") +
-      "\n\n**Router Types**:\n" +
-      types.map((t) => `• **${t.type}**: ${t.description}`).join("\n")
-    );
-  }
-
-  // 6. Plan-specific queries (speed or name)
-  const isEnterprise = text.includes("enterprise") || text.includes("business") || text.includes("office");
-  const speedWanted = normSpeed(text);
-  const planKey = ["basic", "standard", "premium", "ultra", "prime"].find((k) => text.includes(k));
-
-  if (speedWanted) {
-    let plans = [];
-
-    if (isEnterprise || ['20 mbps', '30 mbps', '40 mbps', '50 mbps', '75 mbps'].includes(lc(speedWanted))) {
-        plans = (dnadata.enterprise_broadband_plans || []).filter((p) => lc(p.speed) === lc(speedWanted));
-        if (plans.length > 0) {
-            return `Enterprise **${speedWanted}** plans:\n` + formatPlanBlock(plans);
+            return reply;
+        } catch (err) {
+            console.error("Gemini API error:", err);
+            return "I’m sorry, but I’m having trouble connecting right now. Please try again later.";
         }
-    }
-    
-    plans = (dnadata.dnagoa_broadband_plans || []).filter((p) => lc(p.speed) === lc(speedWanted));
-    if (plans.length > 0) {
-        return `Home **${speedWanted}** plans:\n` + formatPlanBlock(plans);
-    }
-  }
-
-  if (planKey) {
-    const nameMap = {
-      basic: "Goa Basic",
-      standard: "Goa Standard",
-      premium: "Goa Premium",
-      ultra: "Goa Ultra",
-      prime: "Goa Prime"
     };
-    const target = nameMap[planKey];
-    const plans = (dnadata.dnagoa_broadband_plans || []).filter((p) => lc(p.plan_name) === lc(target));
-    if (plans.length) {
-      const spds = [...new Set(plans.map((p) => p.speed))].join(", ");
-      return `Here are the **${target}** plans (${spds}):\n` + formatPlanBlock(plans);
-    }
-  }
 
-  // 7. Generic "plans" or "OTT" query (this is now the lowest priority)
-  if (text.includes("plan") || text.includes("ott")) {
-    const allSpeeds = [
-        ...new Set([
-            ...(dnadata.dnagoa_broadband_plans || []).map(p => p.speed),
-            ...(dnadata.enterprise_broadband_plans || []).map(p => p.speed)
-        ])
-    ].sort((a, b) => parseFloat(a) - parseFloat(b));
-
-    const quick = allSpeeds
-        .map((s) => {
-            const items = [
-                ...(dnadata.dnagoa_broadband_plans || []),
-                ...(dnadata.enterprise_broadband_plans || [])
-            ].filter((p) => lc(p.speed) === lc(s));
-
-            if (!items.length) return null;
-
-            const first = items[0];
-            const priceExample = first?.prices?.[0]?.price ? ` (from ${first.prices[0].price})` : "";
-            return `• ${s}${priceExample}`;
-        })
-        .filter(Boolean)
-        .join("\n");
-
-    return "Popular broadband speeds:\n" + quick + "\n\nAsk me, e.g., '100 mbps plans' or 'Goa Premium'.";
-  }
-
-  // No local match
-  return null;
-};
-
-// ---------- Gemini fallback with context ----------
-async function askGemini(userText) {
-  const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
-  if (!GEMINI_API_KEY) {
-    return "I couldn’t find a local answer and no Gemini API key is set.";
-  }
-
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
-  
-  const prompt = `
-    You are a helpful cybersecurity assistant for DNA Goa broadband. Your purpose is to provide accurate and helpful information based on the provided data.
-
-    Here is the complete data about the company's plans, FAQs, and terms:
-    \`\`\`json
-    ${JSON.stringify(dnadata, null, 2)}
-    \`\`\`
-
-    In addition to this data, you are aware of the following components on our website:
-    - **BentoGrid**: This section showcases our key services and products.
-    - **NewsSection**: This component provides the latest news and articles on cybersecurity.
-    - **ThreatMap**: This section visualizes real-time global cybersecurity threats.
-
-    Based on the provided data and your knowledge of the app components, answer the user question. If the answer is not in the data, try to be as helpful as possible without inventing information. For example, if the user asks about general cybersecurity, you can provide a high-level, helpful answer.
-
-    User question: "${userText}"
-  `;
-
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: prompt }]
-          }
-        ]
-      })
-    });
-
-    const data = await res.json();
-    const reply =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
-      "Sorry, I couldn't find an answer. Please try rephrasing your question.";
-
-    return reply;
-  } catch (err) {
-    console.error("Gemini API error:", err);
-    return "I’m sorry, but I’m having trouble connecting right now. Please try again later.";
-  }
-}
-
-// ---------- UI Components (with width change) ----------
-function Message({ sender, text }) {
-  const isUser = sender === "user";
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: isUser ? "flex-end" : "flex-start",
-        mb: 1
-      }}
-    >
-      <Box
-        sx={{
-          maxWidth: "75%",
-          px: 1.5,
-          py: 1,
-          borderRadius: 2,
-          bgcolor: isUser ? "primary.main" : "#333",
-          color: isUser ? "primary.contrastText" : "text.primary",
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-          fontSize: 14,
-        }}
-      >
-        {text}
-      </Box>
-    </Box>
-  );
-}
-
-// --- Chatbot component with quick tools and width set to 500 ---
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    { sender: "bot", text: "Cyber Chatbot\nHi! I’m your Cybersecurity Assistant 🤖 for DNA Goa broadband. Ask me anything about our plans, or about the news, threats, and services on our site." }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const listRef = useRef(null);
 
-  const quickAsk = (q) => {
-    setOpen(true);
-    setLoading(true);
-    setTimeout(() => send(q), 50);
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  }, [messages, loading]);
+
+  // Quick Ask Handler
+  const quickAsk = (type) => {
+    if (type === "home plans") {
+      showPlans("Home Plans", dnadata.dnagoa_broadband_plans);
+    } else if (type === "enterprise plans") {
+      showPlans("Enterprise Plans", dnadata.enterprise_broadband_plans);
+    }
   };
 
-  const send = async (forced) => {
-    const query = trim(forced || input);
-    if (!query) return;
-    setMessages((m) => [...m, { sender: "user", text: query }]);
+  // Show Plans in Cards
+  const showPlans = (title, plans) => {
+    setMessages((prev) => [...prev, { sender: "bot", type: "plans", title, plans }]);
+  };
+
+  // Send, using the new askGemini function
+  const send = async () => {
+    if (!input.trim()) return;
+    const text = input.trim();
+    setMessages((prev) => [...prev, { sender: "user", text }]);
     setInput("");
     setLoading(true);
 
-    const local = localAnswer(query);
-    if (local) {
-      setMessages((m) => [...m, { sender: "bot", text: local }]);
+    // Quick asks
+    if (text.toLowerCase().includes("home plan")) {
+      showPlans("Home Plans", dnadata.dnagoa_broadband_plans);
+      setLoading(false);
+      return;
+    }
+    if (text.toLowerCase().includes("enterprise plan")) {
+      showPlans("Enterprise Plans", dnadata.enterprise_broadband_plans);
       setLoading(false);
       return;
     }
 
-    const reply = await askGemini(query);
-    setMessages((m) => [...m, { sender: "bot", text: reply }]);
+    // Otherwise, Gemini API prompt
+    const reply = await askGemini(text);
+    setMessages((prev) => [...prev, { sender: "bot", text: reply }]);
     setLoading(false);
   };
 
@@ -407,19 +237,21 @@ export default function Chatbot() {
     }
   };
 
-  useEffect(() => {
-    if (listRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight;
-    }
-  }, [messages, open, loading]);
-
   return (
     <>
       {!open && (
         <Tooltip title="Chatbot">
           <Fab
             color="secondary"
-            sx={{ position: "fixed", bottom: 24, right: 24, zIndex: 1500 }}
+            sx={{
+              position: "fixed",
+              bottom: 24,
+              right: 24,
+              zIndex: 1500,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+              transition: "all 0.3s ease-in-out",
+              "&:hover": { transform: "scale(1.1)" },
+            }}
             onClick={() => setOpen(true)}
           >
             <SmartToyIcon />
@@ -427,59 +259,198 @@ export default function Chatbot() {
         </Tooltip>
       )}
 
-      <Drawer anchor="right" open={open} onClose={() => setOpen(false)}>
-        <Box sx={{ width: 500, height: "100%", display: "flex", flexDirection: "column", bgcolor: "background.default" }}>
-          <Box sx={{ p: 2, bgcolor: "grey.900", color: "white" }}>
-            <Typography variant="h6" sx={{ color: "cyan" }}>Cyber Chatbot {GEMINI_API_KEY ? "ON" : "OFF"}</Typography>
-          </Box>
-          <Divider />
-          {/* Quick tools */}
-          <Box sx={{ p: 1.5, display: "flex", gap: 1, justifyContent: "center" }}>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <button
-                onClick={() => quickAsk("home plans")}
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: "8px",
-                  border: "none",
-                  background: "#1976d2",
-                  color: "white",
-                  fontSize: "0.85rem",
-                  cursor: "pointer"
+      <Drawer
+        anchor="right"
+        open={open}
+        onClose={() => setOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: { xs: 0, sm: "12px 0 0 12px" },
+            boxShadow: "-4px 0 20px rgba(0,0,0,0.2)",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: { xs: "95vw", sm: 460, md: 520 },
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            bgcolor: "background.default",
+          }}
+        >
+          {/* Header */}
+          <Box
+            sx={{
+              p: 2,
+              background: "linear-gradient(135deg, #1565c0, #42a5f5)",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              boxShadow: 3,
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", fontSize: "1.3rem", letterSpacing: 0.5 }}
+            >
+              Cyber Chatbot
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                fontSize: "0.85rem",
+              }}
+            >
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  bgcolor: process.env.REACT_APP_GEMINI_API_KEY ? "limegreen" : "red",
+                  boxShadow: process.env.REACT_APP_GEMINI_API_KEY
+                    ? "0 0 6px limegreen"
+                    : "0 0 6px red",
                 }}
-              >
-                Home Plans
-              </button>
-              <button
-                onClick={() => quickAsk("enterprise plans")}
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: "8px",
-                  border: "none",
-                  background: "#1976d2",
-                  color: "white",
-                  fontSize: "0.85rem",
-                  cursor: "pointer"
-                }}
-              >
-                Enterprise Plans
-              </button>
+              />
+              {process.env.REACT_APP_GEMINI_API_KEY ? "Online" : "Offline"}
             </Box>
           </Box>
+
+          {/* Quick Tools */}
+          <Box
+            sx={{
+              p: 1.5,
+              display: "flex",
+              gap: 1,
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            {["Home Plans", "Enterprise Plans"].map((label) => (
+              <button
+                key={label}
+                onClick={() => quickAsk(label.toLowerCase())}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "20px",
+                  border: "none",
+                  background: "#1565c0",
+                  color: "white",
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                  transition: "all 0.2s",
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </Box>
+
           <Divider />
 
-          {/* Chat messages */}
+          {/* Chat Messages */}
           <Box
             ref={listRef}
             sx={{
               flex: 1,
               overflowY: "auto",
               p: 2,
-              bgcolor: "background.default"
+              bgcolor: "background.default",
+              scrollBehavior: "smooth",
             }}
           >
             {messages.map((m, i) => (
-              <Message key={i} sender={m.sender} text={m.text} />
+              <Box
+                key={i}
+                sx={{
+                  display: "flex",
+                  justifyContent: m.sender === "user" ? "flex-end" : "flex-start",
+                  mb: 1.5,
+                }}
+              >
+                {m.type === "plans" ? (
+                  <Box sx={{ width: "100%" }}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: "bold", mb: 1 }}
+                    >
+                      {m.title}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "grid",
+                        gap: 1.5,
+                        gridTemplateColumns: "1fr 1fr",
+                      }}
+                    >
+                      {m.plans.map((plan, idx) => (
+                        <Card
+                          key={idx}
+                          sx={{ boxShadow: 2, borderRadius: 2, bgcolor: "background.paper" }}
+                        >
+                          <CardContent>
+                            <Typography variant="subtitle1" fontWeight="bold">
+                              {plan.duration}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              Speed: {plan.speed}
+                            </Typography>
+                            {plan.benefits && (
+                              <ul style={{ paddingLeft: 16, margin: "6px 0" }}>
+                                {plan.benefits.map((b, j) => (
+                                  <li key={j}>
+                                    <Typography variant="body2">{b}</Typography>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                            {/* Price display */}
+                            {plan.prices && (
+                              <Box sx={{ mt: 1 }}>
+                                <Typography variant="body2" fontWeight="bold">
+                                  Price{plan.prices.length > 1 ? "s" : ""}:
+                                </Typography>
+                                <ul style={{ paddingLeft: 16, margin: "4px 0" }}>
+                                  {plan.prices.map((p, pidx) => (
+                                    <li key={pidx}>
+                                      <Typography variant="body2">
+                                        {p.label ? `${p.label}: ` : ""}{p.price}
+                                      </Typography>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </Box>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </Box>
+                  </Box>
+                ) : (
+                  <Card
+                    sx={{
+                      px: 2,
+                      py: 1,
+                      borderRadius: 2,
+                      maxWidth: "75%",
+                      bgcolor: m.sender === "user" ? "primary.main" : "background.paper",
+                      color: m.sender === "user" ? "white" : "text.primary",
+                      boxShadow: 2,
+                      fontSize: "0.9rem",
+                      whiteSpace: "pre-line",
+                    }}
+                  >
+                    <CardContent sx={{ p: 1, "&:last-child": { pb: 1 } }}>
+                      {m.text}
+                    </CardContent>
+                  </Card>
+                )}
+              </Box>
             ))}
             {loading && (
               <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 1 }}>
@@ -489,7 +460,19 @@ export default function Chatbot() {
           </Box>
 
           <Divider />
-          <Box sx={{ p: 1.5, display: "flex", gap: 1 }}>
+
+          {/* Input */}
+          <Box
+            sx={{
+              p: 1.5,
+              display: "flex",
+              gap: 1,
+              alignItems: "center",
+              borderTop: "1px solid",
+              borderColor: "divider",
+              bgcolor: "background.paper",
+            }}
+          >
             <TextField
               size="small"
               fullWidth
@@ -497,8 +480,19 @@ export default function Chatbot() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
+              InputProps={{ sx: { bgcolor: "background.paper" } }}
             />
-            <IconButton color="primary" onClick={() => send()} aria-label="send">
+            <IconButton
+              color="primary"
+              onClick={send}
+              aria-label="send"
+              sx={{
+                bgcolor: "primary.main",
+                color: "white",
+                "&:hover": { bgcolor: "primary.dark" },
+                boxShadow: "0 3px 8px rgba(0,0,0,0.3)",
+              }}
+            >
               <SendIcon />
             </IconButton>
           </Box>
