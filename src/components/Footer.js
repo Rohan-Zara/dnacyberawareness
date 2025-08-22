@@ -6,6 +6,8 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import SecurityIcon from '@mui/icons-material/Security';
 import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import CallIcon from '@mui/icons-material/Call';
+
 
 // Keyframe animations
 const glow = keyframes`
@@ -147,18 +149,20 @@ function Footer() {
       
       {/* Main footer content */}
       <Box position="relative" zIndex={1}>
-        
-
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mb: 2 }}>
+          
           <LocationOnIcon sx={{ fontSize: 16, mr: 0.5, color: "text.secondary" }} />
+          <a href="https://maps.app.goo.gl/DAVaXU9CmCZoYYrbA">
           <Typography variant="body2" color="text.secondary">
-            DNA GOA · {new Date().getFullYear()}
-          </Typography>
+            DNA GOA
+          </Typography> </a> 
         </Box>
-
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontStyle: 'italic' }}>
-          Stay Secure · Stay Vigilant · Stay Protected
-        </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mb: 2 }}>
+      <CallIcon sx={{ fontSize: 16, mr: 0.5, color: "text.secondary" }} />
+      <Typography variant="body2" color="text.secondary">
+        08326747575
+      </Typography>
+    </Box>
 
         {/* Contributors section */}
         <Box sx={{ mb: 3 }}>
