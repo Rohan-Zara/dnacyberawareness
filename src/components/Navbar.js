@@ -1,19 +1,18 @@
 import React, { useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import MenuIcon from "@mui/icons-material/Menu";
-import SecurityIcon from "@mui/icons-material/Security";
 import { styled } from "@mui/material/styles";
 
 // Styled components for enhanced visuals
 const GlowButton = styled(Button)(({ theme }) => ({
   position: 'relative',
+  fontSize: "1rem",   // 🔥 increased font size for desktop
   '&::after': {
     content: '""',
     position: 'absolute',
@@ -28,9 +27,9 @@ const GlowButton = styled(Button)(({ theme }) => ({
   '&:hover::after': {
     width: '80%',
   },
-  margin: '0 4px',
+  margin: '0 6px',
   borderRadius: '20px',
-  padding: '6px 16px',
+  padding: '6px 18px',
   transition: 'all 0.3s ease',
   '&:hover': {
     backgroundColor: 'rgba(0, 206, 201, 0.1)',
@@ -61,45 +60,29 @@ function Navbar() {
   return (
     <AnimatedAppBar position="sticky" elevation={0}>
       <Toolbar>
-        {/* Logo and title section */}
+        {/* Logo Section */}
         <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-          <SecurityIcon 
-            sx={{ 
-              fontSize: 32, 
-              mr: 1, 
-              color: 'secondary.main',
-              filter: 'drop-shadow(0 0 5px rgba(0, 206, 201, 0.5))'
-            }} 
-          />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="#home"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.2rem',
-              color: 'inherit',
-              textDecoration: 'none',
-              background: 'linear-gradient(45deg, #6c5ce7 30%, #00cec9 90%)',
-              backgroundClip: 'text',
-              textFillColor: 'transparent',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            CYBERSECURE
-          </Typography>
-        </Box>
+  <img 
+    src="imgs/logo.jpg"
+    alt="Company Logo"
+    style={{ 
+      height: 52, 
+      marginRight: 12, 
+      borderRadius: 12,
+      padding: "4px",                     // gives a little breathing space
+      background: "rgba(255,255,255,0.05)", // faint background so it melts into navbar
+      boxShadow: "0 0 2px rgba(108,92,231,0.3)", // subtle purple glow
+      backdropFilter: "blur(8px)",        // smooth blend
+    }}
+  />
+</Box>
+
 
         {/* Mobile menu (visible on extra-small screens) */}
         <Box sx={{ flexGrow: 0, display: { xs: "flex", md: "none" } }}>
           <IconButton
             size="large"
-            aria-label="account of current user"
+            aria-label="menu"
             aria-controls="menu-appbar"
             aria-haspopup="true"
             onClick={handleOpenNavMenu}
@@ -154,7 +137,8 @@ function Navbar() {
                   fullWidth
                   sx={{ 
                     justifyContent: 'flex-start',
-                    color: 'text.primary'
+                    color: 'text.primary',
+                    fontSize: "1rem" // 🔥 increased font size in mobile menu
                   }}
                 >
                   {page}
