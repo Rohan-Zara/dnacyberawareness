@@ -12,12 +12,14 @@ import {
   Drawer,
   Fab,
   Tooltip,
+  IconButton,
 } from "@mui/material";
 import {
   Security as SecurityIcon,
   Warning as WarningIcon,
   CheckCircle as CheckCircleIcon,
   Visibility as VisibilityIcon,
+  Close as CloseIcon,
 } from "@mui/icons-material";
 
 const SMSDetector = () => {
@@ -163,21 +165,23 @@ const SMSDetector = () => {
 
   return (
     <>
-      {/* Floating Button */}
-      <Tooltip title="SMS Fraud Detector">
-        <Fab
-          color="secondary"
-          sx={{
-            position: "fixed",
-            bottom: 90, // above chatbot
-            right: 24,
-            zIndex: 2000,
-          }}
-          onClick={() => setOpen(true)}
-        >
-          <SecurityIcon />
-        </Fab>
-      </Tooltip>
+      {/* Floating Button (hidden when open) */}
+      {!open && (
+        <Tooltip title="SMS Fraud Detector">
+          <Fab
+            color="secondary"
+            sx={{
+              position: "fixed",
+              bottom: 90,
+              right: 24,
+              zIndex: 2000,
+            }}
+            onClick={() => setOpen(true)}
+          >
+            <SecurityIcon />
+          </Fab>
+        </Tooltip>
+      )}
 
       {/* Drawer */}
       <Drawer
@@ -188,13 +192,19 @@ const SMSDetector = () => {
           sx: { width: { xs: "100%", sm: 450 }, p: 3, backgroundColor: "background.default" },
         }}
       >
-        <Box sx={{ textAlign: "center", mb: 3 }}>
-          <Typography variant="h4" fontWeight="bold" color="secondary.main">
-            SMS Fraud Detector
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Protect yourself from SMS scams with AI-powered detection
-          </Typography>
+        {/* Header with Close Button */}
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+          <Box>
+            <Typography variant="h4" fontWeight="bold" color="secondary.main">
+              SMS Fraud Detector
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Protect yourself from SMS scams with AI-powered detection
+            </Typography>
+          </Box>
+          <IconButton onClick={() => setOpen(false)}>
+            <CloseIcon />
+          </IconButton>
         </Box>
 
         {/* Input */}
