@@ -7,10 +7,13 @@ import {
   Paper,
   Grid,
   Fade,
-  styled
+  styled,
+  IconButton,
+  InputAdornment
 } from "@mui/material";
 import { keyframes } from "@mui/system";
-import SecurityIcon from '@mui/icons-material/Security';
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const glow = keyframes`
   0% { box-shadow: 0 0 5px rgba(0, 206, 201, 0.3); }
@@ -59,6 +62,7 @@ const SectionHeader = styled(Typography)({
 function PasswordChecker() {
   const [password, setPassword] = useState('');
   const [strength, setStrength] = useState({ score: 0, feedback: [] });
+  const [showPassword, setShowPassword] = useState(false); // 👈 added state
 
   const checkPasswordStrength = (value) => {
     let score = 0;
@@ -116,7 +120,7 @@ function PasswordChecker() {
             <AnimatedPaper elevation={0}>
               <TextField
                 fullWidth
-                type="password"
+                type={showPassword ? "text" : "password"} // 👈 toggle type
                 label="Enter your password"
                 value={password}
                 onChange={handlePasswordChange}
@@ -132,6 +136,25 @@ function PasswordChecker() {
                       borderColor: 'rgba(108, 92, 231, 0.5)',
                     },
                   }
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        sx={{
+                          color: "#00cec9", // neon cyan
+                          '&:hover': {
+                            color: "#6c5ce7", // neon purple
+                            textShadow: "0 0 8px rgba(108, 92, 231, 0.8)"
+                          }
+                        }}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  )
                 }}
               />
               
