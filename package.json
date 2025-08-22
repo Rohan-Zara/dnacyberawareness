@@ -4,6 +4,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.1",
     "@mui/material": "^7.3.1",
+    "framer-motion": "^12.23.12",
     "react-scripts": "^5.0.1",
     "react-slick": "^0.31.0",
     "serpapi": "^2.2.1",
