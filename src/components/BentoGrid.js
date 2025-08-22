@@ -1,66 +1,52 @@
 import React, { useState } from "react";
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import Fade from "@mui/material/Fade";
 import Dialog from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { keyframes } from "@mui/system";
 import { styled } from "@mui/material/styles";
+import GlobalStyles from "@mui/material/GlobalStyles";
+
+// Swiper imports
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/effect-coverflow";
+import { Navigation, Pagination, Autoplay, EffectCoverflow } from "swiper/modules";
 
 // Keyframe animations
 const float = keyframes`
-  0% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
 `;
 
 const glow = keyframes`
-  0% {
-    box-shadow: 0 0 5px rgba(108, 92, 231, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(108, 92, 231, 0.5);
-  }
-  100% {
-    box-shadow: 0 0 5px rgba(108, 92, 231, 0.3);
-  }
+  0% { box-shadow: 0 0 5px rgba(108, 92, 231, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(108, 92, 231, 0.5); }
+  100% { box-shadow: 0 0 5px rgba(108, 92, 231, 0.3); }
 `;
 
 const borderGlow = keyframes`
-  0% {
-    border-color: rgba(108, 92, 231, 0.3);
-  }
-  50% {
-    border-color: rgba(108, 92, 231, 0.8);
-  }
-  100% {
-    border-color: rgba(108, 92, 231, 0.3);
-  }
+  0% { border-color: rgba(108, 92, 231, 0.3); }
+  50% { border-color: rgba(108, 92, 231, 0.8); }
+  100% { border-color: rgba(108, 92, 231, 0.3); }
 `;
 
 const shine = keyframes`
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 200%;
-  }
+  0% { left: -100%; }
+  100% { left: 200%; }
 `;
 
 // Styled components
 const AnimatedCard = styled(Card)({
   height: "100%",
-  background: "linear-gradient(145deg, rgba(26,32,54,0.95) 0%, rgba(30,37,61,0.95) 100%)",
+  background:
+    "linear-gradient(145deg, rgba(26,32,54,0.95) 0%, rgba(30,37,61,0.95) 100%)",
   borderRadius: 16,
   overflow: "hidden",
   position: "relative",
@@ -84,20 +70,14 @@ const AnimatedCard = styled(Card)({
     transform: "translateY(-8px) scale(1.02)",
     border: "1px solid rgba(108, 92, 231, 0.5)",
     animation: `${glow} 2s ease-in-out infinite, ${borderGlow} 2s ease-in-out infinite`,
-    "&::before": {
-      transform: "scaleX(1)",
-    },
-    "& .card-image": {
-      transform: "scale(1.08)",
-    },
-    "& .shine-overlay": {
-      animation: `${shine} 1.5s ease`,
-    },
+    "&::before": { transform: "scaleX(1)" },
+    "& .card-image": { transform: "scale(1.08)" },
+    "& .shine-overlay": { animation: `${shine} 1.5s ease` },
   },
 });
 
 const ImageContainer = styled(Box)({
-  height: 160,
+  height: 160, // overridden by sx below
   borderRadius: "12px 12px 0 0",
   overflow: "hidden",
   position: "relative",
@@ -118,7 +98,8 @@ const ShineOverlay = styled(Box)({
   top: 0,
   height: "100%",
   width: "50%",
-  background: "linear-gradient(to right, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)",
+  background:
+    "linear-gradient(to right, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)",
   zIndex: 1,
   opacity: 0,
   transition: "opacity 0.3s ease",
@@ -165,18 +146,17 @@ const StyledDialog = styled(Dialog)({
 function BentoGrid() {
   const [open, setOpen] = useState(false);
   const [selectedImg, setSelectedImg] = useState(null);
-  const [hoveredCard, setHoveredCard] = useState(null);
 
   const handleOpen = (img) => {
     setSelectedImg(img);
     setOpen(true);
   };
-
   const handleClose = () => {
     setOpen(false);
     setSelectedImg(null);
   };
 
+  // ORIGINAL DATA (unchanged)
   const attacks = [
     { title: "Phishing", desc: "Tricking users into giving up sensitive info.", img: "imgs/phishing.png", wiki: "https://en.wikipedia.org/wiki/Phishing" },
     { title: "Malware", desc: "Malicious software that damages or disables systems.", img: "imgs/malware.png", wiki: "https://en.wikipedia.org/wiki/Malware" },
@@ -215,165 +195,265 @@ function BentoGrid() {
     { img: "imgs/tip16.jpg" }
   ];
 
+  // Shared slider styles to make center big & sides blended
+  const sliderStyles = {
+    width: "100%",
+    maxWidth: 1400,
+    "--swiper-navigation-size": "24px",
+  };
+
   return (
-    <Box sx={{ px: { xs: 2, md: 8 }, py: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {/* Attacks Section */}
-      <CenteredSection>
-        <SectionHeader id="attacks" variant="h3" sx={{ fontWeight: 800, color: "primary.main" }}>
-          Cyber Attacks
-        </SectionHeader>
-        <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mb: 4 }}>
-          Explore different types of cyber threats and learn how to protect yourself
-        </Typography>
-      </CenteredSection>
-      
-      <Grid container spacing={3} sx={{ mb: 10, maxWidth: 1400, justifyContent: 'center' }}>
-        {attacks.map((item, idx) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={idx}>
-            <Fade in timeout={600 + idx * 50}>
-              <a href={item.wiki} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                <AnimatedCard 
-                  onMouseEnter={() => setHoveredCard(`attack-${idx}`)}
-                  onMouseLeave={() => setHoveredCard(null)}
-                  sx={{ 
-                    animationDelay: `${idx * 0.1}s`,
-                    "&:hover": hoveredCard === `attack-${idx}` ? {
-                      boxShadow: "0 16px 30px rgba(108, 92, 231, 0.3)"
-                    } : {}
-                  }}
-                >
-                  <ShineOverlay className="shine-overlay" />
-                  <ImageContainer>
-                    {item.img ? (
-                      <img 
-                        src={item.img} 
-                        alt={item.title} 
+    <>
+      {/* Global background + no horizontal overscroll (fixes white background on drag) */}
+      <GlobalStyles
+        styles={{
+          "html, body, #root": {
+            backgroundColor: "#0a0f1c",
+            margin: 0,
+            height: "100%",
+            overflowX: "hidden",
+            overscrollBehaviorX: "none",
+          },
+        }}
+      />
+
+      <Box
+        sx={{
+          px: { xs: 2, md: 8 },
+          py: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "100%",
+          minHeight: "100vh",
+        }}
+      >
+        {/* Attacks Section */}
+        <CenteredSection>
+          <SectionHeader id="attacks" variant="h3" sx={{ fontWeight: 800, color: "primary.main" }}>
+            Cyber Attacks
+          </SectionHeader>
+          <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mb: 4 }}>
+            Explore different types of cyber threats and learn how to protect yourself
+          </Typography>
+        </CenteredSection>
+
+        {/* Wrapper clips any edge overflow so no white shows */}
+        <Box
+          sx={{
+            mb: "5rem",
+            width: "100%",
+            maxWidth: 1400,
+            overflow: "hidden",               // <-- important fix
+            "& .swiper": { overflow: "visible" },
+            "& .swiper-slide": {
+              transition: "transform 0.5s ease, filter 0.5s ease, opacity 0.5s ease",
+              filter: "brightness(0.85)",
+              opacity: 0.85,
+            },
+            "& .swiper-slide-active": {
+              zIndex: 3,
+              filter: "brightness(1)",
+              opacity: 1,
+              transform: "scale(1.04)",
+            },
+            "& .swiper-button-prev, & .swiper-button-next": {
+              color: "#fff",
+              background: "rgba(0,0,0,0.35)",
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              backdropFilter: "blur(4px)",
+            },
+            "& .swiper-button-prev:hover, & .swiper-button-next:hover": {
+              background: "rgba(0,0,0,0.6)",
+            },
+            "& .swiper-pagination-bullet": {
+              background: "rgba(255,255,255,0.4)",
+              opacity: 1,
+            },
+            "& .swiper-pagination-bullet-active": { background: "#6c5ce7" },
+          }}
+        >
+          <Swiper
+            modules={[Navigation, Pagination, Autoplay, EffectCoverflow]}
+            effect="coverflow"
+            centeredSlides
+            loop
+            slidesPerView={3}
+            speed={800}
+            autoplay={{ delay: 2500, disableOnInteraction: false }}
+            navigation
+            pagination={{ clickable: true }}
+            coverflowEffect={{
+              rotate: 0,
+              stretch: -30, // slight overlap to feel “behind”
+              depth: 220,
+              modifier: 1.2,
+              slideShadows: false,
+            }}
+            resistanceRatio={0} // reduces rubber-band feel at edges
+            style={sliderStyles}
+            breakpoints={{
+              0: { slidesPerView: 1.2, centeredSlides: true },
+              900: { slidesPerView: 3, centeredSlides: true },
+            }}
+          >
+            {attacks.map((item, idx) => (
+              <SwiperSlide key={idx}>
+                <a href={item.wiki} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                  <AnimatedCard className="animated-card">
+                    <ShineOverlay className="shine-overlay" />
+                    <ImageContainer sx={{ height: { xs: 240, md: 340, lg: 420 } }}>
+                      <img
+                        src={item.img}
+                        alt={item.title}
                         className="card-image"
-                        style={{ 
-                          width: "100%", 
-                          height: "100%", 
-                          objectFit: "cover",
-                          transition: "transform 0.5s ease"
-                        }} 
+                        style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }}
                       />
-                    ) : (
-                      <Box 
-                        sx={{ 
-                          width: "100%", 
-                          height: "100%", 
-                          display: "flex", 
-                          alignItems: "center", 
-                          justifyContent: "center",
-                          background: "linear-gradient(135deg, #6c5ce7 0%, #00cec9 100%)",
-                          color: "white"
-                        }}
-                      >
-                        <Typography variant="h6">{item.title}</Typography>
-                      </Box>
-                    )}
+                    </ImageContainer>
+                    <CardContent sx={{ p: 2.5 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, textAlign: "center" }}>
+                        {item.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
+                        {item.desc}
+                      </Typography>
+                    </CardContent>
+                  </AnimatedCard>
+                </a>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </Box>
+
+        {/* Tips Section */}
+        <CenteredSection>
+          <SectionHeader id="tips" variant="h3" sx={{ fontWeight: 800, color: "secondary.main" }}>
+            Security Tips
+          </SectionHeader>
+          <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mb: 4 }}>
+            Essential cybersecurity practices to keep your data safe
+          </Typography>
+        </CenteredSection>
+
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: 1400,
+            overflow: "hidden",               // <-- important fix
+            "& .swiper": { overflow: "visible" },
+            "& .swiper-slide": {
+              transition: "transform 0.5s ease, filter 0.5s ease, opacity 0.5s ease",
+              filter: "brightness(0.85)",
+              opacity: 0.85,
+            },
+            "& .swiper-slide-active": {
+              zIndex: 3,
+              filter: "brightness(1)",
+              opacity: 1,
+              transform: "scale(1.04)",
+            },
+            "& .swiper-button-prev, & .swiper-button-next": {
+              color: "#fff",
+              background: "rgba(0,0,0,0.35)",
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              backdropFilter: "blur(4px)",
+            },
+            "& .swiper-button-prev:hover, & .swiper-button-next:hover": {
+              background: "rgba(0,0,0,0.6)",
+            },
+            "& .swiper-pagination-bullet": {
+              background: "rgba(255,255,255,0.4)",
+              opacity: 1,
+            },
+            "& .swiper-pagination-bullet-active": { background: "#00cec9" },
+          }}
+        >
+          <Swiper
+            modules={[Navigation, Pagination, Autoplay, EffectCoverflow]}
+            effect="coverflow"
+            centeredSlides
+            loop
+            slidesPerView={3}
+            speed={800}
+            autoplay={{ delay: 2800, disableOnInteraction: false }}
+            navigation
+            pagination={{ clickable: true }}
+            coverflowEffect={{
+              rotate: 0,
+              stretch: -30,
+              depth: 220,
+              modifier: 1.2,
+              slideShadows: false,
+            }}
+            resistanceRatio={0}
+            style={sliderStyles}
+            breakpoints={{
+              0: { slidesPerView: 1.2, centeredSlides: true },
+              900: { slidesPerView: 3, centeredSlides: true },
+            }}
+          >
+            {tips.map((item, idx) => (
+              <SwiperSlide key={idx}>
+                <AnimatedCard className="animated-card" onClick={() => handleOpen(item.img)} sx={{ cursor: "pointer" }}>
+                  <ShineOverlay className="shine-overlay" />
+                  <ImageContainer sx={{ height: { xs: 240, md: 340, lg: 420 } }}>
+                    <img
+                      src={item.img}
+                      alt={`Tip ${idx + 1}`}
+                      className="card-image"
+                      style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }}
+                    />
                   </ImageContainer>
-                  <CardContent sx={{ p: 2.5 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, textAlign: 'center' }}>
-                      {item.title}
+                  <CardContent sx={{ p: 2.5, textAlign: "center" }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      Security Tip #{idx + 1}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-                      {item.desc}
+                    <Typography variant="caption" color="text.secondary">
+                      Click to view full size
                     </Typography>
                   </CardContent>
                 </AnimatedCard>
-              </a>
-            </Fade>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* Tips Section */}
-      <CenteredSection>
-        <SectionHeader id="tips" variant="h3" sx={{ fontWeight: 800, color: "secondary.main" }}>
-          Security Tips
-        </SectionHeader>
-        <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mb: 4 }}>
-          Essential cybersecurity practices to keep your data safe
-        </Typography>
-      </CenteredSection>
-      
-      <Grid container spacing={3} sx={{ maxWidth: 1400, justifyContent: 'center' }}>
-        {tips.map((item, idx) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={idx}>
-            <Fade in timeout={600 + idx * 50}>
-              <AnimatedCard
-                onClick={() => handleOpen(item.img)}
-                onMouseEnter={() => setHoveredCard(`tip-${idx}`)}
-                onMouseLeave={() => setHoveredCard(null)}
-                sx={{ 
-                  animationDelay: `${idx * 0.1}s`,
-                  cursor: "pointer",
-                  "&:hover": hoveredCard === `tip-${idx}` ? {
-                    boxShadow: "0 16px 30px rgba(0, 206, 201, 0.3)"
-                  } : {}
-                }}
-              >
-                <ShineOverlay className="shine-overlay" />
-                <ImageContainer>
-                  <img
-                    src={item.img}
-                    alt={`Tip ${idx + 1}`}
-                    className="card-image"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      transition: "transform 0.5s ease"
-                    }}
-                  />
-                </ImageContainer>
-                <CardContent sx={{ p: 2.5, textAlign: 'center' }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                    Security Tip #{idx + 1}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Click to view full size
-                  </Typography>
-                </CardContent>
-              </AnimatedCard>
-            </Fade>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* Dialog (popup for image) */}
-      <StyledDialog open={open} onClose={handleClose} maxWidth="md">
-        <Box sx={{ position: "relative" }}>
-          <IconButton
-            onClick={handleClose}
-            sx={{ 
-              position: "absolute", 
-              top: 12, 
-              right: 12, 
-              color: "#fff", 
-              backgroundColor: "rgba(0,0,0,0.4)",
-              "&:hover": {
-                backgroundColor: "rgba(0,0,0,0.7)",
-              }
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-          {selectedImg && (
-            <img
-              src={selectedImg}
-              alt="Security Tip"
-              style={{
-                width: "100%",
-                height: "auto",
-                maxHeight: "80vh",
-                objectFit: "contain",
-              }}
-            />
-          )}
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </Box>
-      </StyledDialog>
-    </Box>
+
+        {/* Dialog (popup for image) */}
+        <StyledDialog open={open} onClose={handleClose} maxWidth="md">
+          <Box sx={{ position: "relative" }}>
+            <IconButton
+              onClick={handleClose}
+              sx={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                color: "#fff",
+                backgroundColor: "rgba(0,0,0,0.4)",
+                "&:hover": { backgroundColor: "rgba(0,0,0,0.7)" },
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+            {selectedImg && (
+              <img
+                src={selectedImg}
+                alt="Security Tip"
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  maxHeight: "80vh",
+                  objectFit: "contain",
+                }}
+              />
+            )}
+          </Box>
+        </StyledDialog>
+      </Box>
+    </>
   );
 }
 
