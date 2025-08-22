@@ -169,28 +169,56 @@ const SMSDetector = () => {
   ];
 
   return (
-    <Box id="sms-detector" sx={{ px: { xs: 2, md: 4 }, py: 6 }}>
+  
+  <Box
+    id="sms-detector"
+    sx={{
+      minHeight: "100vh",         // full viewport height
+      display: "flex",            // flexbox
+      flexDirection: "column",    // stack vertically
+      justifyContent: "center",   // center vertically
+      alignItems: "center",       // center horizontally
+      px: { xs: 2, md: 4 },
+      py: 6,
+    }}
+  >
+    <Box sx={{ width: "100%", maxWidth: 1000 }}>
+      {/* Heading */}
       <Box sx={{ textAlign: "center", mb: 4 }}>
-        <Typography variant="h3" sx={{ 
-          fontWeight: 800, 
-          mb: 1, 
-          color: "secondary.main"
-        }}>
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 800,
+            mb: 1,
+            color: "secondary.main",
+          }}
+        >
           SMS Fraud Detector
         </Typography>
-        <Typography variant="h6" sx={{ color: "text.secondary", maxWidth: 600, mx: "auto" }}>
+        <Typography
+          variant="h6"
+          sx={{ color: "text.secondary", maxWidth: 600, mx: "auto" }}
+        >
           Protect yourself from SMS scams with AI-powered detection
         </Typography>
       </Box>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={4}>
-          <Card sx={{ 
-            bgcolor: 'background.paper',
-            backgroundImage: 'none',
-            height: '100%'
-          }}>
-            <CardContent sx={{ textAlign: 'center' }}>
+      {/* Feature Cards */}
+      <Grid
+        container
+        spacing={3}
+        sx={{ mb: 4 }}
+        justifyContent="center"
+      >
+        <Grid item xs={12} sm={6} md={4}>
+          <Card
+            sx={{
+              bgcolor: "background.paper",
+              backgroundImage: "none",
+              height: "100%",
+            }}
+          >
+            <CardContent sx={{ textAlign: "center" }}>
               <ScheduleIcon color="warning" sx={{ fontSize: 40, mb: 2 }} />
               <Typography variant="h6" gutterBottom>
                 Instant Analysis
@@ -201,13 +229,16 @@ const SMSDetector = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <Card sx={{ 
-            bgcolor: 'background.paper',
-            backgroundImage: 'none',
-            height: '100%'
-          }}>
-            <CardContent sx={{ textAlign: 'center' }}>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <Card
+            sx={{
+              bgcolor: "background.paper",
+              backgroundImage: "none",
+              height: "100%",
+            }}
+          >
+            <CardContent sx={{ textAlign: "center" }}>
               <VisibilityIcon color="info" sx={{ fontSize: 40, mb: 2 }} />
               <Typography variant="h6" gutterBottom>
                 Smart Detection
@@ -218,13 +249,16 @@ const SMSDetector = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <Card sx={{ 
-            bgcolor: 'background.paper',
-            backgroundImage: 'none',
-            height: '100%'
-          }}>
-            <CardContent sx={{ textAlign: 'center' }}>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <Card
+            sx={{
+              bgcolor: "background.paper",
+              backgroundImage: "none",
+              height: "100%",
+            }}
+          >
+            <CardContent sx={{ textAlign: "center" }}>
               <GroupIcon color="success" sx={{ fontSize: 40, mb: 2 }} />
               <Typography variant="h6" gutterBottom>
                 Stay Protected
@@ -237,16 +271,19 @@ const SMSDetector = () => {
         </Grid>
       </Grid>
 
-      <Paper sx={{ 
-        p: 3, 
-        mb: 3,
-        background: 'linear-gradient(to bottom right, #1a2036, #1e253d)',
-        backgroundImage: 'none'
-      }}>
+      {/* SMS Input Section */}
+      <Paper
+        sx={{
+          p: 3,
+          mb: 3,
+          background: "linear-gradient(to bottom right, #1a2036, #1e253d)",
+          backgroundImage: "none",
+        }}
+      >
         <Typography variant="h6" gutterBottom sx={{ color: "text.primary" }}>
           Paste your SMS message below:
         </Typography>
-        
+
         <TextField
           multiline
           rows={4}
@@ -254,25 +291,33 @@ const SMSDetector = () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Enter the SMS message you want to analyze for fraud..."
-          sx={{ 
+          sx={{
             mb: 2,
-            '& .MuiOutlinedInput-root': {
-              color: 'white',
-              '& fieldset': {
-                borderColor: 'rgba(108, 92, 231, 0.3)',
+            "& .MuiOutlinedInput-root": {
+              color: "white",
+              "& fieldset": {
+                borderColor: "rgba(108, 92, 231, 0.3)",
               },
-              '&:hover fieldset': {
-                borderColor: 'rgba(108, 92, 231, 0.5)',
+              "&:hover fieldset": {
+                borderColor: "rgba(108, 92, 231, 0.5)",
               },
-            }
+            },
           }}
         />
-        
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", sm: "center" },
+            gap: 2,
+          }}
+        >
           <Typography variant="body2" color="text.secondary">
             Characters: {message.length}
           </Typography>
-          
+
           <Button
             onClick={checkFraud}
             disabled={!message.trim() || isAnalyzing}
@@ -280,8 +325,8 @@ const SMSDetector = () => {
             startIcon={<SecurityIcon />}
             sx={{
               borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 600
+              textTransform: "none",
+              fontWeight: 600,
             }}
           >
             {isAnalyzing ? "Analyzing..." : "Analyze Message"}
@@ -289,9 +334,10 @@ const SMSDetector = () => {
         </Box>
       </Paper>
 
+      {/* Results */}
       {result && (
         <Collapse in={open}>
-          <Alert 
+          <Alert
             severity={getRiskColor(result.level)}
             sx={{ mb: 3 }}
             icon={getRiskIcon(result.level)}
@@ -309,7 +355,7 @@ const SMSDetector = () => {
             <Typography variant="h6" gutterBottom>
               {getRiskMessage(result.level, result.score)}
             </Typography>
-            
+
             {result.issues.length > 0 && (
               <Box sx={{ mb: 2 }}>
                 <Typography variant="body2" fontWeight="bold" gutterBottom>
@@ -319,8 +365,12 @@ const SMSDetector = () => {
                   {result.issues.map((issue, index) => (
                     <li key={index}>
                       <Typography variant="body2">
-                        <Box component="span" fontWeight="bold">{issue.category}:</Box>{" "}
-                        <Box component="span" fontStyle="italic">{issue.words.join(", ")}</Box>
+                        <Box component="span" fontWeight="bold">
+                          {issue.category}:
+                        </Box>{" "}
+                        <Box component="span" fontStyle="italic">
+                          {issue.words.join(", ")}
+                        </Box>
                       </Typography>
                     </li>
                   ))}
@@ -343,20 +393,44 @@ const SMSDetector = () => {
               </Box>
             )}
 
-            <Box sx={{ mt: 2, p: 1, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 1 }}>
+            <Box
+              sx={{
+                mt: 2,
+                p: 1,
+                bgcolor: "rgba(255,255,255,0.1)",
+                borderRadius: 1,
+              }}
+            >
               <Typography variant="body2" fontWeight="bold" gutterBottom>
                 Safety Tips:
               </Typography>
               {result.level === "high" || result.level === "medium" ? (
                 <Box component="ul" sx={{ pl: 2 }}>
-                  <li><Typography variant="body2">Never click suspicious links or download attachments</Typography></li>
-                  <li><Typography variant="body2">Don't share personal information via SMS</Typography></li>
-                  <li><Typography variant="body2">Verify with the organization through official channels</Typography></li>
-                  <li><Typography variant="body2">Report the message to your carrier by forwarding to 7726</Typography></li>
+                  <li>
+                    <Typography variant="body2">
+                      Never click suspicious links or download attachments
+                    </Typography>
+                  </li>
+                  <li>
+                    <Typography variant="body2">
+                      Don't share personal information via SMS
+                    </Typography>
+                  </li>
+                  <li>
+                    <Typography variant="body2">
+                      Verify with the organization through official channels
+                    </Typography>
+                  </li>
+                  <li>
+                    <Typography variant="body2">
+                      Report the message to your carrier by forwarding to 7726
+                    </Typography>
+                  </li>
                 </Box>
               ) : (
                 <Typography variant="body2">
-                  This message appears safe, but always stay vigilant with unexpected messages.
+                  This message appears safe, but always stay vigilant with
+                  unexpected messages.
                 </Typography>
               )}
             </Box>
@@ -364,25 +438,35 @@ const SMSDetector = () => {
         </Collapse>
       )}
 
-      <Paper sx={{ p: 3, background: 'linear-gradient(to bottom right, #1a2036, #1e253d)' }}>
+      {/* Example Messages */}
+      <Paper
+        sx={{
+          p: 3,
+          background: "linear-gradient(to bottom right, #1a2036, #1e253d)",
+        }}
+      >
         <Typography variant="h6" gutterBottom sx={{ color: "text.primary" }}>
           Try These Examples:
         </Typography>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} justifyContent="center">
           {exampleMessages.map((example, index) => (
-            <Grid item xs={12} md={4} key={index}>
-              <Paper 
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Paper
                 onClick={() => setMessage(example)}
-                sx={{ 
-                  p: 2, 
-                  cursor: 'pointer',
-                  bgcolor: 'background.default',
-                  '&:hover': {
-                    borderColor: 'primary.main'
-                  }
+                sx={{
+                  p: 2,
+                  cursor: "pointer",
+                  bgcolor: "background.default",
+                  "&:hover": {
+                    borderColor: "primary.main",
+                  },
                 }}
               >
-                <Typography variant="body2" color="text.secondary" gutterBottom>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  gutterBottom
+                >
                   Example {index + 1}:
                 </Typography>
                 <Typography variant="body1" color="text.primary">
@@ -394,7 +478,9 @@ const SMSDetector = () => {
         </Grid>
       </Paper>
     </Box>
-  );
+  </Box>
+);
+
 };
 
 export default SMSDetector;
