@@ -72,7 +72,8 @@ const dnadata = {
       { question: "How do I test my internet speed?", answer: "You can test your Internet Speed by clicking here: https://www.google.com/search?q=internet+speed+test" },
       { question: "Is DNA Goa a secured ISP?", answer: "DNA Goa is a 100% secured internet service provider with the vision of connecting every Goan with high-speed internet." },
       { question: "How to make a payment while applying for a DNA Goa?", answer: "You can pay online by logging in with your registered user id and password on the DNA Broadband internet connection site." },
-      { question: "My internet connection is not working?", answer: "If you are having network issues, try resetting your WiFi router. If the problem persists, contact us at 0832-6747575." }
+      { question: "My internet connection is not working?", answer: "If you are having network issues, try resetting your WiFi router. If the problem persists, contact us at 0832-6747575." },
+      { question: "What is full form of DNA goa?", answer: "DNA Goa stands for Digital Networks Associates Goa" }
     ],
     common_queries: [
       { question: "Why is my internet slow?", answer: "Check for multiple devices using bandwidth, restart your router, and contact support if the issue persists." },
